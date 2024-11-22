@@ -13,6 +13,7 @@ param appServiceAPIDBHostFLASK_DEBUG string //configures the Flask debug mode
 @allowed([ 
   'nonprod'
   'prod'
+  'uat'
 ])
 param environmentType string
 

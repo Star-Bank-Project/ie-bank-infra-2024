@@ -5,9 +5,6 @@
         "environmentType": {
             "value": "nonprod"
         },
-        "name": {
-            "value": "makiwarner-acr-dev"
-        },
         "postgreSQLServerName": {
             "value": "makenna-dbsrv-dev"
         },

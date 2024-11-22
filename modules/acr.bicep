@@ -15,6 +15,12 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' =
   }
 }
 
-output containerRegistryUserName string = containerRegistry.listCredentials().username
-output containerRegistryPassword0 string = containerRegistry.listCredentials().passwords[0].value
-output containerRegistryPassword1 string = containerRegistry.listCredentials().passwords[1].value
+//output containerRegistryUserName string = containerRegistry.listCredentials().username
+//output containerRegistryPassword0 string = containerRegistry.listCredentials().passwords[0].value
+//output containerRegistryPassword1 string = containerRegistry.listCredentials().passwords[1].value
+
+/*commented out to avoid: Error: WARNING: /home/runner/work/ie-bank-infra/ie-bank-infra/modules/acr.bicep(18,43) : 
+Warning outputs-should-not-contain-secrets: Outputs should not contain secrets. Found possible secret: function 
+'listCredentials' [https://aka.ms/bicep/linter/outputs-should-not-contain-secrets]*/
+
+/*will be added later with key-vault*/

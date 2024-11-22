@@ -1,0 +1,30 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "environmentType": {
+            "value": "uat"
+        },
+        "containerRegistryName": {
+            "value": "makiwarneracruat"
+        },
+        "postgreSQLServerName": {
+            "value": "makenna-dbsrv-uat"
+        },
+        "postgreSQLDatabaseName": {
+            "value": "makenna-db-uat"
+        },
+        "appServicePlanName": {
+            "value": "makenna-asp-uat"
+        },
+        "appServiceAPIAppName": {
+            "value": "makenna-be-uat"
+        },
+        "appServiceAppName": {
+            "value": "makenna-fe-uat"
+        },
+        "location": {
+            "value": "North Europe"
+        }
+    }
+}

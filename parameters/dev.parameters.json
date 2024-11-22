@@ -5,6 +5,9 @@
         "environmentType": {
             "value": "nonprod"
         },
+        "containerRegistryName": {
+    "value": "makiwarneracrdev"
+        },
         "postgreSQLServerName": {
             "value": "makenna-dbsrv-dev"
         },

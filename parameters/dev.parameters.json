@@ -5,20 +5,23 @@
         "environmentType": {
             "value": "nonprod"
         },
+        "name": {
+            "value": "makiwarner-acr-dev"
+        },
         "postgreSQLServerName": {
-            "value": "jseijas-dbsrv-dev"
+            "value": "makenna-dbsrv-dev"
         },
         "postgreSQLDatabaseName": {
-            "value": "jseijas-db-dev"
+            "value": "makenna-db-dev"
         },
         "appServicePlanName": {
-            "value": "jseijas-asp-dev"
+            "value": "makenna-asp-dev"
         },
         "appServiceAPIAppName": {
-            "value": "jseijas-be-dev"
+            "value": "makenna-be-dev"
         },
         "appServiceAppName": {
-            "value": "jseijas-fe-dev"
+            "value": "makenna-fe-dev"
         },
         "location": {
             "value": "North Europe"

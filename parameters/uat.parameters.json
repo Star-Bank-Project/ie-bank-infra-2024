@@ -1,57 +1,74 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-      "environmentType": {
-        "value": "uat"
-      },
-      "containerRegistryName": {
-        "value": "makiwarneracruat"
-      },
-      "postgreSQLServerName": {
-        "value": "makenna-dbsrv-uat"
-      },
-      "postgreSQLDatabaseName": {
-        "value": "makenna-db-uat"
-      },
-      "appServicePlanName": {
-        "value": "makenna-asp-uat"
-      },
-      "appServiceAPIAppName": {
-        "value": "makenna-be-uat"
-      },
-      "appServiceAppName": {
-        "value": "makenna-fe-uat"
-      },
-      "keyVaultName": {
-        "value": "makenna-keyvault-uat"
-      },
-      "location": {
-        "value": "North Europe"
-      },
-      "roleAssignments": {
-        "value": [
-            {
-                "principalId": "37841ca3-42b3-4aed-b215-44d6f5dcb57d",
-                "roleDefinitionIdOrName": "Key Vault Secrets User",
-                "principalType": "ServicePrincipal"
-              },
-              {
-                "principalId": "daa3436a-d1fb-44fe-b34b-053db433cdb7",
-                "roleDefinitionIdOrName": "Key Vault Administrator",
-                "principalType": "Group"
-              }
-        ]
-      },
-      "subscriptionId": {
-        "value": "e0b9cada-61bc-4b5a-bd7a-52c606726b3b"
-      },
-      "tenantId": {
-        "value": "5ca2bc70-353c-4d1f-b7d7-7f2b2259df68"
-      },
-      "FLASK_DEBUG": {
-        "value": "0"
-      }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environmentType": {
+      "value": "uat"
+    },
+    "userAlias": {
+      "value": "makenna"
+    },
+    "containerRegistryName": {
+      "value": "makenna-acr-uat"
+    },
+    "keyVaultName": {
+      "value": "makenna-keyvault-uat"
+    },
+    "roleAssignments": {
+      "value": [
+        {
+          "principalId": "37841ca3-42b3-4aed-b215-44d6f5dcb57d",
+          "roleDefinitionIdOrName": "Key Vault Secrets User",
+          "principalType": "ServicePrincipal"
+        },
+        {
+          "principalId": "daa3436a-d1fb-44fe-b34b-053db433cdb7",
+          "roleDefinitionIdOrName": "Key Vault Administrator",
+          "principalType": "Group"
+        }
+      ]
+    },
+    "secrets": {
+      "value": []
+    },
+    "postgreSQLServerName": {
+      "value": "makenna-dbsrv-uat"
+    },
+    "postgreSQLDatabaseName": {
+      "value": "makenna-db-uat"
+    },
+    "appServicePlanName": {
+      "value": "makenna-asp-uat"
+    },
+    "appServiceAppName": {
+      "value": "makenna-fe-uat"
+    },
+    "appServiceAPIAppName": {
+      "value": "makenna-be-uat"
+    },
+    "location": {
+      "value": "North Europe"
+    },
+    "appServiceAPIEnvVarENV": {
+      "value": "uat"
+    },
+    "appServiceAPIEnvVarDBHOST": {
+      "value": "makenna-dbsrv-uat.postgres.database.azure.com"
+    },
+    "appServiceAPIEnvVarDBNAME": {
+      "value": "makenna-db-uat"
+    },
+    "appServiceAPIEnvVarDBPASS": {
+      "value": "uat-db-pass"
+    },
+    "appServiceAPIDBHostDBUSER": {
+      "value": "uat-db-user"
+    },
+    "appServiceAPIDBHostFLASK_APP": {
+      "value": "uat-app.py"
+    },
+    "appServiceAPIDBHostFLASK_DEBUG": {
+      "value": "0"
     }
   }
-  
+}

@@ -9,7 +9,7 @@
       "value": "makenna"
     },
     "containerRegistryName": {
-      "value": "makenna-acr-uat"
+      "value": "makennaacruat"
     },
     "keyVaultName": {
       "value": "makenna-keyvault-uat"

@@ -6,7 +6,7 @@
         "value": "nonprod"
       },
       "containerRegistryName": {
-        "value": "makiwarneracrdev"
+        "value": "makennaacrdev"
       },
       "postgreSQLServerName": {
         "value": "makenna-dbsrv-dev"

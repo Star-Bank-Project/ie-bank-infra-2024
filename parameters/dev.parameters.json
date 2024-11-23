@@ -44,22 +44,6 @@
           }
         ]
       },
-      "secrets": {
-        "value": [
-          {
-            "name": "dbPassword",
-            "value": "Chip3548"
-          },
-          {
-            "name": "dbUser",
-            "value": "makiwarner"
-          },
-          {
-            "name": "flaskApp",
-            "value": "app.py"
-          }
-        ]
-      },
       "appServiceAPIEnvVarENV": {
         "value": "dev"
       },

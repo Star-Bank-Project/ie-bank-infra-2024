@@ -53,22 +53,6 @@
       "tenantId": {
         "value": "5ca2bc70-353c-4d1f-b7d7-7f2b2259df68"
       },
-      "secrets": {
-        "value": [
-          {
-            "name": "dbPassword",
-            "value": "Chip3548"
-          },
-          {
-            "name": "dbUser",
-            "value": "makiwarner"
-          },
-          {
-            "name": "flaskApp",
-            "value": "app.py"
-          }
-        ]
-      },
       "FLASK_DEBUG": {
         "value": "0"
       }

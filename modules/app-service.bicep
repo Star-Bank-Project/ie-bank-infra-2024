@@ -2,23 +2,24 @@ param location string = resourceGroup().location
 param appServicePlanName string
 param appServiceAppName string
 param appServiceAPIAppName string
-param appServiceAPIEnvVarENV string
-param appServiceAPIEnvVarDBHOST string
-param appServiceAPIEnvVarDBNAME string
+param appServiceAPIEnvVarENV string //API environment configuration (parameters = nonprod, prod)
+param appServiceAPIEnvVarDBHOST string //database environment variables
+param appServiceAPIEnvVarDBNAME string //db
 @secure()
-param appServiceAPIEnvVarDBPASS string
-param appServiceAPIDBHostDBUSER string
-param appServiceAPIDBHostFLASK_APP string
-param appServiceAPIDBHostFLASK_DEBUG string
-@allowed([
+param appServiceAPIEnvVarDBPASS string //db 
+param appServiceAPIDBHostDBUSER string // db
+param appServiceAPIDBHostFLASK_APP string //specifies the Flask application to run
+param appServiceAPIDBHostFLASK_DEBUG string //configures the Flask debug mode
+@allowed([ 
   'nonprod'
   'prod'
+  'uat'
 ])
 param environmentType string
 
-var appServicePlanSkuName = (environmentType == 'prod') ? 'B1' : 'B1'
+var appServicePlanSkuName = (environmentType == 'prod') ? 'B1' : 'B1' //sets the SKU for the ASP (both B1)
 
-resource appServicePlan 'Microsoft.Web/serverFarms@2022-03-01' = {
+resource appServicePlan 'Microsoft.Web/serverFarms@2022-03-01' = { //creates an ASP, which provides the compute infra for hosting App services
   name: appServicePlanName
   location: location
   sku: {
@@ -30,13 +31,13 @@ resource appServicePlan 'Microsoft.Web/serverFarms@2022-03-01' = {
   }
 }
 
-resource appServiceAPIApp 'Microsoft.Web/sites@2022-03-01' = {
+resource appServiceAPIApp 'Microsoft.Web/sites@2022-03-01' = {  //deploys a Python-based App Service for the API, running on the ASP
   name: appServiceAPIAppName
   location: location
   properties: {
     serverFarmId: appServicePlan.id
     httpsOnly: true
-    siteConfig: {
+    siteConfig: { //secure configuration
       linuxFxVersion: 'PYTHON|3.11'
       alwaysOn: false
       ftpsState: 'FtpsOnly'
@@ -78,7 +79,7 @@ resource appServiceAPIApp 'Microsoft.Web/sites@2022-03-01' = {
   }
 }
 
-resource appServiceApp 'Microsoft.Web/sites@2022-03-01' = {
+resource appServiceApp 'Microsoft.Web/sites@2022-03-01' = {  //deploys a Node.js-based App Service for the frontend application
   name: appServiceAppName
   location: location
   properties: {
@@ -94,4 +95,4 @@ resource appServiceApp 'Microsoft.Web/sites@2022-03-01' = {
   }
 }
 
-output appServiceAppHostName string = appServiceApp.properties.defaultHostName
+output appServiceAppHostName string = appServiceApp.properties.defaultHostName 

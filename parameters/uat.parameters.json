@@ -3,25 +3,25 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "environmentType": {
-            "value": "nonprod"
+            "value": "uat"
         },
         "containerRegistryName": {
-    "value": "makiwarneracrdev"
+            "value": "makiwarneracruat"
         },
         "postgreSQLServerName": {
-            "value": "makenna-dbsrv-dev"
+            "value": "makenna-dbsrv-uat"
         },
         "postgreSQLDatabaseName": {
-            "value": "makenna-db-dev"
+            "value": "makenna-db-uat"
         },
         "appServicePlanName": {
-            "value": "makenna-asp-dev"
+            "value": "makenna-asp-uat"
         },
         "appServiceAPIAppName": {
-            "value": "makenna-be-dev"
+            "value": "makenna-be-uat"
         },
         "appServiceAppName": {
-            "value": "makenna-fe-dev"
+            "value": "makenna-fe-uat"
         },
         "location": {
             "value": "North Europe"

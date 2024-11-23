@@ -10,7 +10,7 @@ param userAlias string = 'makenna'
 @description('The name of the Azure Container Registry')
 param containerRegistryName string = 'makiwarner-acr-dev'
 @sys.description('The name of the Key Vault')
-param keyVaultName string = 'keyvault-dev'
+param keyVaultName string = 'makenna-keyvault-dev'
 @sys.description('The role assignments for the Key Vault')
 param roleAssignments array = []
 @sys.description('The secrets to be stored in the Key Vault')

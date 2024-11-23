@@ -24,7 +24,7 @@
         "value": "makenna-fe-uat"
       },
       "keyVaultName": {
-        "value": "keyvault-uat"
+        "value": "makenna-keyvault-uat"
       },
       "location": {
         "value": "North Europe"

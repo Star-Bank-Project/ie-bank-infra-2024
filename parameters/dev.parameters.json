@@ -24,7 +24,7 @@
         "value": "makenna-fe-dev"
       },
       "keyVaultName": {
-        "value": "keyvault-dev"
+        "value": "makenna-keyvault-dev"
       },
       "location": {
         "value": "North Europe"

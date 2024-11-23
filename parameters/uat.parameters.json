@@ -26,6 +26,9 @@
       "keyVaultName": {
         "value": "keyvault-uat"
       },
+      "keyVaultResourceId": {
+      "value": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/keyvault-dev"
+    },
       "location": {
         "value": "North Europe"
       },
@@ -43,9 +46,6 @@
       },
       "clientId": {
         "value": "c52bb0cc-7f22-4c28-aee8-264d1cafbb06"
-      },
-      "clientSecret": {
-        "value": "GRj8Q~i9_TLEC7iC2wVUKdM5q_0XU-QlaCO5WdyR"
       },
       "subscriptionId": {
         "value": "e0b9cada-61bc-4b5a-bd7a-52c606726b3b"

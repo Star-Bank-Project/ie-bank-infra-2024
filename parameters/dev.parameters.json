@@ -27,8 +27,8 @@
         "value": "keyvault-dev"
       },
       "keyVaultResourceId": {
-      "value": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/keyvault-dev"
-    },
+        "value": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/keyvault-dev"
+      },
       "location": {
         "value": "North Europe"
       },

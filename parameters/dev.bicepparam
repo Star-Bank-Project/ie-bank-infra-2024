@@ -28,5 +28,5 @@ param appServiceAPIDBHostFLASK_DEBUG = '0' // Hardcoded for DEV
 
 param appServiceAPIEnvVarDBHOST = 'makenna-dbsrv-dev.postgres.database.azure.com' 
 param appServiceAPIEnvVarDBNAME = 'makenna-db-dev' 
-param appServiceAPIEnvVarENV = 'dev' // Example environment variable
+param appServiceAPIEnvVarENV = 'dev' 
 

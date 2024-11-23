@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
       "environmentType": {
-        "value": "dev"
+        "value": "nonprod"
       },
       "containerRegistryName": {
         "value": "makiwarneracrdev"

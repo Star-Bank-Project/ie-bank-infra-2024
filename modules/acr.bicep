@@ -22,6 +22,9 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' =
   properties: {
     adminUserEnabled: true
   }
+  dependsOn: [
+    adminCredentialsKeyVault
+  ]
 }
 
 // Define the Key Vault as a direct resource

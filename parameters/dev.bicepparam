@@ -3,7 +3,7 @@ using '../main.bicep'
 param appServiceAPIDBHostDBUSER = az.getSecret(
   'e0b9cada-61bc-4b5a-bd7a-52c606726b3b', // Subscription ID
   'BCSAI2024-DEVOPS-STUDENTS-B-DEV',      // Resource Group Name for DEV
-  'keyvault-dev',                         // Key Vault Name
+  'makenna-keyvault-dev',                         // Key Vault Name
   'dbUser',                               // Secret Name
   'latest'                                // Secret Version
 )
@@ -11,7 +11,7 @@ param appServiceAPIDBHostDBUSER = az.getSecret(
 param appServiceAPIEnvVarDBPASS = az.getSecret(
   'e0b9cada-61bc-4b5a-bd7a-52c606726b3b', // Subscription ID
   'BCSAI2024-DEVOPS-STUDENTS-B-DEV',      // Resource Group Name for DEV
-  'keyvault-dev',                         // Key Vault Name
+  'makenna-keyvault-dev',                         // Key Vault Name
   'dbPassword',                           // Secret Name
   'latest'                                // Secret Version
 )
@@ -19,7 +19,7 @@ param appServiceAPIEnvVarDBPASS = az.getSecret(
 param appServiceAPIDBHostFLASK_APP = az.getSecret(
   'e0b9cada-61bc-4b5a-bd7a-52c606726b3b', // Subscription ID
   'BCSAI2024-DEVOPS-STUDENTS-B-DEV',      // Resource Group Name for DEV
-  'keyvault-dev',                         // Key Vault Name
+  'makenna-keyvault-dev',                         // Key Vault Name
   'flaskApp',                             // Secret Name
   'latest'                                // Secret Version
 )

@@ -31,14 +31,16 @@
       },
       "roleAssignments": {
         "value": [
-          {
-            "roleName": "Key Vault Administrator",
-            "principalId": "12345678-1234-1234-1234-1234567890ab"
-          },
-          {
-            "roleName": "Key Vault Secrets User",
-            "principalId": "23456789-2345-2345-2345-2345678901bc"
-          }
+            {
+                "principalId": "37841ca3-42b3-4aed-b215-44d6f5dcb57d",
+                "roleDefinitionIdOrName": "Key Vault Secrets User",
+                "principalType": "ServicePrincipal"
+              },
+              {
+                "principalId": "daa3436a-d1fb-44fe-b34b-053db433cdb7",
+                "roleDefinitionIdOrName": "Key Vault Administrator",
+                "principalType": "ServicePrincipal"
+              }
         ]
       },
       "subscriptionId": {

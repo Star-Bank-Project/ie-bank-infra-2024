@@ -9,6 +9,12 @@ param environmentType string = 'nonprod'
 param userAlias string = 'makenna'
 @description('The name of the Azure Container Registry')
 param containerRegistryName string = 'makiwarner-acr-dev'
+@sys.description('The name of the Key Vault')
+param keyVaultName string = 'makenna-keyvault-dev'
+@sys.description('The role assignments for the Key Vault')
+param roleAssignments array = []
+@sys.description('The secrets to be stored in the Key Vault')
+param secrets array = []
 @sys.description('The PostgreSQL Server name')
 @minLength(3)
 @maxLength(24)
@@ -46,6 +52,7 @@ param appServiceAPIDBHostDBUSER string
 param appServiceAPIDBHostFLASK_APP string
 @sys.description('The value for the environment variable FLASK_DEBUG')
 param appServiceAPIDBHostFLASK_DEBUG string
+
 
 resource postgresSQLServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01' = {
   name: postgreSQLServerName
@@ -112,12 +119,30 @@ module appService 'modules/app-service.bicep' = {
   ]
 }
 
-module acr 'modules/acr.bicep' = {
+module acr './modules/acr.bicep' = {
   name: 'acr-${userAlias}'
   params: {
     name: containerRegistryName
     location: location
+    keyVaultName: keyVaultName
+    keyVaultSecretAdminUsername: 'acrAdminUsername' // Secret name for the admin username
+    keyVaultSecretAdminPassword0: 'acrAdminPassword0' // Secret name for password 0
+    keyVaultSecretAdminPassword1: 'acrAdminPassword1' // Secret name for password 1
   }
 }
+
+module keyVault './modules/keyVault.bicep' = {
+  name: 'KeyVaultModule'
+  params: {
+    name: keyVaultName
+    location: location
+    enableVaultForDeployment: true
+    roleAssignments: roleAssignments
+    secrets: secrets
+  }
+}
+
+
+
 
 output appServiceAppHostName string = appService.outputs.appServiceAppHostName

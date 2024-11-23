@@ -26,9 +26,6 @@
       "keyVaultName": {
         "value": "keyvault-uat"
       },
-      "keyVaultResourceId": {
-      "value": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/keyvault-dev"
-    },
       "location": {
         "value": "North Europe"
       },

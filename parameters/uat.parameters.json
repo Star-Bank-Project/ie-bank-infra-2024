@@ -2,29 +2,76 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "environmentType": {
-            "value": "uat"
-        },
-        "containerRegistryName": {
-            "value": "makiwarneracruat"
-        },
-        "postgreSQLServerName": {
-            "value": "makenna-dbsrv-uat"
-        },
-        "postgreSQLDatabaseName": {
-            "value": "makenna-db-uat"
-        },
-        "appServicePlanName": {
-            "value": "makenna-asp-uat"
-        },
-        "appServiceAPIAppName": {
-            "value": "makenna-be-uat"
-        },
-        "appServiceAppName": {
-            "value": "makenna-fe-uat"
-        },
-        "location": {
-            "value": "North Europe"
-        }
+      "environmentType": {
+        "value": "uat"
+      },
+      "containerRegistryName": {
+        "value": "makiwarneracruat"
+      },
+      "postgreSQLServerName": {
+        "value": "makenna-dbsrv-uat"
+      },
+      "postgreSQLDatabaseName": {
+        "value": "makenna-db-uat"
+      },
+      "appServicePlanName": {
+        "value": "makenna-asp-uat"
+      },
+      "appServiceAPIAppName": {
+        "value": "makenna-be-uat"
+      },
+      "appServiceAppName": {
+        "value": "makenna-fe-uat"
+      },
+      "keyVaultName": {
+        "value": "keyvault-uat"
+      },
+      "location": {
+        "value": "North Europe"
+      },
+      "roleAssignments": {
+        "value": [
+          {
+            "roleName": "Key Vault Administrator",
+            "principalId": "12345678-1234-1234-1234-1234567890ab"
+          },
+          {
+            "roleName": "Key Vault Secrets User",
+            "principalId": "23456789-2345-2345-2345-2345678901bc"
+          }
+        ]
+      },
+      "clientId": {
+        "value": "c52bb0cc-7f22-4c28-aee8-264d1cafbb06"
+      },
+      "clientSecret": {
+        "value": "GRj8Q~i9_TLEC7iC2wVUKdM5q_0XU-QlaCO5WdyR"
+      },
+      "subscriptionId": {
+        "value": "e0b9cada-61bc-4b5a-bd7a-52c606726b3b"
+      },
+      "tenantId": {
+        "value": "5ca2bc70-353c-4d1f-b7d7-7f2b2259df68"
+      },
+      "secrets": {
+        "value": [
+          {
+            "name": "dbPassword",
+            "value": "Chip3548"
+          },
+          {
+            "name": "dbUser",
+            "value": "makiwarner"
+          },
+          {
+            "name": "flaskApp",
+            "value": "app.py"
+          }
+        ]
+      },
+      "FLASK_DEBUG": {
+        "value": "0"
+      }
     }
-}
+  }
+  

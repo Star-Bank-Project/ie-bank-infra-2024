@@ -107,5 +107,6 @@ jobs:
               {"name":"DBUSER","value":"@Microsoft.KeyVault(SecretUri=https://makenna-keyvault-dev.vault.azure.net/secrets/DBUSER)"},
               {"name":"DBPASS","value":"@Microsoft.KeyVault(SecretUri=https://makenna-keyvault-dev.vault.azure.net/secrets/DBPASS)"},
               {"name":"FLASK_APP","value":"${{ vars.FLASK_APP }}"},
-              {"name":"FLASK_DEBUG","value":"${{ vars.FLASK_DEBUG }}"} ]
+              {"name":"FLASK_DEBUG","value":"${{ vars.FLASK_DEBUG }}"}
+            ]
           deploymentName: ${{ env.USER_ALIAS }}-uat

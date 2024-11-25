@@ -5,9 +5,6 @@
     "environmentType": {
       "value": "nonprod"
     },
-    "name": {
-      "value": "makenna-keyvault-dev"
-    },
     "userAlias": {
       "value": "makenna"
     },
@@ -80,21 +77,6 @@
           "principalType": "Group"
         }
       ]
-    },
-    "secrets": {
-      "value": [
-        {
-          "name": "DBUSER",
-          "value": "makiwarner"
-        },
-        {
-          "name": "DBPASS",
-          "value": "Chip3548"
-        }
-      ]
-    },
-    "enableVaultForDeployment": {
-      "value": true
     }
   }
 }

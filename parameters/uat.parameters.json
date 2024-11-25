@@ -2,17 +2,67 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "environmentType": {
-      "value": "uat"
+    "name": {
+      "value": "makenna-keyvault-uat"
     },
     "userAlias": {
-      "value": "makenna"
+      "value": "uat-user"
     },
     "containerRegistryName": {
-      "value": "makennaacruat"
+      "value": "makiwarner-acr-uat"
     },
     "keyVaultName": {
       "value": "makenna-keyvault-uat"
+    },
+    "postgreSQLServerName": {
+      "value": "makenna-dbsrv-uat"
+    },
+    "postgreSQLDatabaseName": {
+      "value": "makenna-db-uat"
+    },
+    "appServicePlanName": {
+      "value": "makenna-asp-uat"
+    },
+    "appServiceWebsiteBEName": {
+      "value": "makenna-be-uat"
+    },
+    "appServiceWebsiteFEName": {
+      "value": "makenna-fe-uat"
+    },
+    "appServiceWebsiteBeAppSettings": {
+      "value": [
+        {
+          "name": "ENV",
+          "value": "uat"
+        },
+        {
+          "name": "DBHOST",
+          "value": "makenna-dbsrv-uat.postgres.database.azure.com"
+        },
+        {
+          "name": "DBNAME",
+          "value": "makenna-db-uat"
+        },
+        {
+          "name": "DBUSER",
+          "value": "@Microsoft.KeyVault(SecretUri=https://makenna-keyvault-uat.vault.azure.net/secrets/DBUSER)"
+        },
+        {
+          "name": "DBPASS",
+          "value": "@Microsoft.KeyVault(SecretUri=https://makenna-keyvault-uat.vault.azure.net/secrets/DBPASS)"
+        },
+        {
+          "name": "FLASK_APP",
+          "value": "app.py"
+        },
+        {
+          "name": "FLASK_DEBUG",
+          "value": "0"
+        }
+      ]
+    },
+    "location": {
+      "value": "North Europe"
     },
     "roleAssignments": {
       "value": [
@@ -29,46 +79,19 @@
       ]
     },
     "secrets": {
-      "value": []
+      "value": [
+        {
+          "name": "DBUSER",
+          "value": "uat-user"
+        },
+        {
+          "name": "DBPASS",
+          "value": "UATPass123"
+        }
+      ]
     },
-    "postgreSQLServerName": {
-      "value": "makenna-dbsrv-uat"
-    },
-    "postgreSQLDatabaseName": {
-      "value": "makenna-db-uat"
-    },
-    "appServicePlanName": {
-      "value": "makenna-asp-uat"
-    },
-    "appServiceAppName": {
-      "value": "makenna-fe-uat"
-    },
-    "appServiceAPIAppName": {
-      "value": "makenna-be-uat"
-    },
-    "location": {
-      "value": "North Europe"
-    },
-    "appServiceAPIEnvVarENV": {
-      "value": "uat"
-    },
-    "appServiceAPIEnvVarDBHOST": {
-      "value": "makenna-dbsrv-uat.postgres.database.azure.com"
-    },
-    "appServiceAPIEnvVarDBNAME": {
-      "value": "makenna-db-uat"
-    },
-    "appServiceAPIEnvVarDBPASS": {
-      "value": "uat-db-pass"
-    },
-    "appServiceAPIDBHostDBUSER": {
-      "value": "uat-db-user"
-    },
-    "appServiceAPIDBHostFLASK_APP": {
-      "value": "uat-app.py"
-    },
-    "appServiceAPIDBHostFLASK_DEBUG": {
-      "value": "0"
+    "enableVaultForDeployment": {
+      "value": true
     }
   }
 }

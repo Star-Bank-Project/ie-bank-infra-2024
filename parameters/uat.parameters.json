@@ -61,27 +61,6 @@
         }
       ]
     },
-    "appServiceAPIEnvVarENV": {
-      "value": "uat"
-    },
-    "appServiceAPIEnvVarDBHOST": {
-      "value": "database-host-value"
-    },
-    "appServiceAPIEnvVarDBNAME": {
-      "value": "database-name-value"
-    },
-    "appServiceAPIEnvVarDBPASS": {
-      "value": "Chip3548"
-    },
-    "appServiceAPIDBHostDBUSER": {
-      "value": "makiwarner"
-    },
-    "appServiceAPIDBHostFLASK_APP": {
-      "value": "app.py"
-    },
-    "appServiceAPIDBHostFLASK_DEBUG": {
-      "value": "0"
-    },
     "location": {
       "value": "North Europe"
     },

@@ -50,8 +50,8 @@ module postgreSQLServer './modules/postgre-sql-server.bicep' = {
 module postgreSQLDatabase 'modules/postgre-sql-db.bicep' = {
   name: 'psqldb-${userAlias}'
   params: {
-    name: '${postgreSQLServerName}/${postgreSQLDatabaseName}'
-    postgresSqlServerName: postgreSQLServer.outputs.id
+    name: postgreSQLDatabaseName 
+    postgresSqlServerName: postgreSQLServerName 
   }
   dependsOn: [
     postgreSQLServer

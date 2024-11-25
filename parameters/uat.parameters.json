@@ -5,14 +5,11 @@
     "environmentType": {
       "value": "uat"
     },
-    "name": {
-      "value": "makenna-keyvault-uat"
-    },
     "userAlias": {
-      "value": "uat-user"
+      "value": "makenna"
     },
     "containerRegistryName": {
-      "value": "makiwarner-acr-uat"
+      "value": "makennaacr-uat"
     },
     "keyVaultName": {
       "value": "makenna-keyvault-uat"
@@ -80,21 +77,6 @@
           "principalType": "Group"
         }
       ]
-    },
-    "secrets": {
-      "value": [
-        {
-          "name": "DBUSER",
-          "value": "uat-user"
-        },
-        {
-          "name": "DBPASS",
-          "value": "UATPass123"
-        }
-      ]
-    },
-    "enableVaultForDeployment": {
-      "value": true
     }
   }
 }

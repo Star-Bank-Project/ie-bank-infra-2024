@@ -1,69 +1,82 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-      "environmentType": {
-        "value": "nonprod"
-      },
-      "containerRegistryName": {
-        "value": "makennaacrdev"
-      },
-      "postgreSQLServerName": {
-        "value": "makenna-dbsrv-dev"
-      },
-      "postgreSQLDatabaseName": {
-        "value": "makenna-db-dev"
-      },
-      "appServicePlanName": {
-        "value": "makenna-asp-dev"
-      },
-      "appServiceAPIAppName": {
-        "value": "makenna-be-dev"
-      },
-      "appServiceAppName": {
-        "value": "makenna-fe-dev"
-      },
-      "keyVaultName": {
-        "value": "makenna-keyvault-dev"
-      },
-      "location": {
-        "value": "North Europe"
-      },
-      "roleAssignments": {
-        "value": [
-            {
-                "principalId": "37841ca3-42b3-4aed-b215-44d6f5dcb57d",
-                "roleDefinitionIdOrName": "Key Vault Secrets User",
-                "principalType": "ServicePrincipal"
-              },
-              {
-                "principalId": "daa3436a-d1fb-44fe-b34b-053db433cdb7",
-                "roleDefinitionIdOrName": "Key Vault Administrator",
-                "principalType": "Group"
-              }
-        ]
-      },
-      "appServiceAPIEnvVarENV": {
-        "value": "dev"
-      },
-      "appServiceAPIEnvVarDBHOST": {
-        "value": "database-host-value"
-      },
-      "appServiceAPIEnvVarDBNAME": {
-        "value": "database-name-value"
-      },
-      "appServiceAPIEnvVarDBPASS": {
-        "value": "Chip3548"
-      },
-      "appServiceAPIDBHostDBUSER": {
-        "value": "makiwarner"
-      },
-      "appServiceAPIDBHostFLASK_APP": {
-        "value": "app.py"
-      },
-      "appServiceAPIDBHostFLASK_DEBUG": {
-        "value": "0"
-      }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environmentType": {
+      "value": "nonprod"
+    },
+    "userAlias": {
+      "value": "makenna"
+    },
+    "containerRegistryName": {
+      "value": "makennaacrdev"
+    },
+    "keyVaultName": {
+      "value": "makenna-keyvault-dev"
+    },
+    "postgreSQLServerName": {
+      "value": "makenna-dbsrv-dev"
+    },
+    "postgreSQLDatabaseName": {
+      "value": "makenna-db-dev"
+    },
+    "appServicePlanName": {
+      "value": "makenna-asp-dev"
+    },
+    "appServiceWebsiteBEName": {
+      "value": "makenna-be-dev"
+    },
+    "appServiceWebsiteFEName": {
+      "value": "makenna-fe-dev"
+    },
+    "appServiceWebsiteBeAppSettings": {
+      "value": [
+        {
+          "name": "ENV",
+          "value": "dev"
+        },
+        {
+          "name": "DBHOST",
+          "value": "makenna-dbsrv-dev.postgres.database.azure.com"
+        },
+        {
+          "name": "DBNAME",
+          "value": "makenna-db-dev"
+        },
+        {
+          "name": "DBUSER",
+          "value": "@Microsoft.KeyVault(SecretUri=https://makenna-keyvault-dev.vault.azure.net/secrets/DBUSER)"
+        },
+        {
+          "name": "DBPASS",
+          "value": "@Microsoft.KeyVault(SecretUri=https://makenna-keyvault-dev.vault.azure.net/secrets/DBPASS)"
+        },
+        {
+          "name": "FLASK_APP",
+          "value": "app.py"
+        },
+        {
+          "name": "FLASK_DEBUG",
+          "value": "0"
+        }
+      ]
+    },
+    "location": {
+      "value": "North Europe"
+    },
+    "roleAssignments": {
+      "value": [
+        {
+          "principalId": "37841ca3-42b3-4aed-b215-44d6f5dcb57d",
+          "roleDefinitionIdOrName": "Key Vault Secrets User",
+          "principalType": "ServicePrincipal"
+        },
+        {
+          "principalId": "daa3436a-d1fb-44fe-b34b-053db433cdb7",
+          "roleDefinitionIdOrName": "Key Vault Administrator",
+          "principalType": "Group"
+        }
+      ]
     }
   }
-  
+}

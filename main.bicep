@@ -1,123 +1,20 @@
-@sys.description('The environment type (nonprod or prod)')
 @allowed([
   'nonprod'
   'prod'
   'uat'
 ])
-param environmentType string = 'nonprod'
-@sys.description('The user alias to add to the deployment name')
-param userAlias string = 'makenna'
-@description('The name of the Azure Container Registry')
-param containerRegistryName string = 'makiwarner-acr-dev'
-@sys.description('The name of the Key Vault')
-param keyVaultName string = 'makenna-keyvault-dev'
-@sys.description('The role assignments for the Key Vault')
+param environmentType string 
+param userAlias string
+param containerRegistryName string 
+param keyVaultName string 
 param roleAssignments array = []
-@sys.description('The secrets to be stored in the Key Vault')
-param secrets array = []
-@sys.description('The PostgreSQL Server name')
-@minLength(3)
-@maxLength(24)
-param postgreSQLServerName string = 'ie-bank-db-server-dev'
-@sys.description('The PostgreSQL Database name')
-@minLength(3)
-@maxLength(24)
-param postgreSQLDatabaseName string = 'ie-bank-db'
-@sys.description('The App Service Plan name')
-@minLength(3)
-@maxLength(24)
-param appServicePlanName string = 'ie-bank-app-sp-dev'
-@sys.description('The Web App name (frontend)')
-@minLength(3)
-@maxLength(24)
-param appServiceAppName string = 'ie-bank-dev'
-@sys.description('The API App name (backend)')
-@minLength(3)
-@maxLength(24)
-param appServiceAPIAppName string = 'ie-bank-api-dev'
-@sys.description('The Azure location where the resources will be deployed')
+param postgreSQLServerName string 
+param postgreSQLDatabaseName string
+param appServicePlanName string 
+param appServiceWebsiteBEName string 
+param appServiceWebsiteFEName string 
 param location string = resourceGroup().location
-@sys.description('The value for the environment variable ENV')
-param appServiceAPIEnvVarENV string
-@sys.description('The value for the environment variable DBHOST')
-param appServiceAPIEnvVarDBHOST string
-@sys.description('The value for the environment variable DBNAME')
-param appServiceAPIEnvVarDBNAME string
-@sys.description('The value for the environment variable DBPASS')
-@secure()
-param appServiceAPIEnvVarDBPASS string
-@sys.description('The value for the environment variable DBUSER')
-param appServiceAPIDBHostDBUSER string
-@sys.description('The value for the environment variable FLASK_APP')
-param appServiceAPIDBHostFLASK_APP string
-@sys.description('The value for the environment variable FLASK_DEBUG')
-param appServiceAPIDBHostFLASK_DEBUG string
-
-
-resource postgresSQLServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01' = {
-  name: postgreSQLServerName
-  location: location
-  sku: {
-    name: 'Standard_B1ms'
-    tier: 'Burstable'
-  }
-  properties: {
-    administratorLogin: 'iebankdbadmin'
-    administratorLoginPassword: 'IE.Bank.DB.Admin.Pa$$'
-    createMode: 'Default'
-    highAvailability: {
-      mode: 'Disabled'
-      standbyAvailabilityZone: ''
-    }
-    storage: {
-      storageSizeGB: 32
-    }
-    backup: {
-      backupRetentionDays: 7
-      geoRedundantBackup: 'Disabled'
-    }
-    version: '15'
-  }
-
-  resource postgresSQLServerFirewallRules 'firewallRules@2022-12-01' = {
-    name: 'AllowAllAzureServicesAndResourcesWithinAzureIps'
-    properties: {
-      endIpAddress: '0.0.0.0'
-      startIpAddress: '0.0.0.0'
-    }
-  }
-}
-
-resource postgresSQLDatabase 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2022-12-01' = {
-  name: postgreSQLDatabaseName
-  parent: postgresSQLServer
-  properties: {
-    charset: 'UTF8'
-    collation: 'en_US.UTF8'
-  }
-}
-
-module appService 'modules/app-service.bicep' = {
-  name: 'appService-${userAlias}'
-  params: {
-    location: location
-    environmentType: environmentType
-    appServiceAppName: appServiceAppName
-    appServiceAPIAppName: appServiceAPIAppName
-    appServicePlanName: appServicePlanName
-    appServiceAPIDBHostDBUSER: appServiceAPIDBHostDBUSER
-    appServiceAPIDBHostFLASK_APP: appServiceAPIDBHostFLASK_APP
-    appServiceAPIDBHostFLASK_DEBUG: appServiceAPIDBHostFLASK_DEBUG
-    appServiceAPIEnvVarDBHOST: appServiceAPIEnvVarDBHOST
-    appServiceAPIEnvVarDBNAME: appServiceAPIEnvVarDBNAME
-    appServiceAPIEnvVarDBPASS: appServiceAPIEnvVarDBPASS
-    appServiceAPIEnvVarENV: appServiceAPIEnvVarENV
-  }
-  dependsOn: [
-    postgresSQLDatabase
-    acr //appService depends on the ACR
-  ]
-}
+param appServiceWebsiteBeAppSettings array
 
 module acr './modules/acr.bicep' = {
   name: 'acr-${userAlias}'
@@ -138,11 +35,72 @@ module keyVault './modules/keyVault.bicep' = {
     location: location
     enableVaultForDeployment: true
     roleAssignments: roleAssignments
-    secrets: secrets
+    //secrets: secrets
   }
 }
 
+module postgreSQLServer './modules/postgre-sql-server.bicep' = {
+  name: 'pgsqlsrv-${userAlias}'
+  params: {
+    name: postgreSQLServerName
+    location: location
+  }
+}
+
+module postgreSQLDatabase 'modules/postgre-sql-db.bicep' = {
+  name: 'psqldb-${userAlias}'
+  params: {
+    name: postgreSQLDatabaseName 
+    postgresSqlServerName: postgreSQLServerName 
+  }
+  dependsOn: [
+    postgreSQLServer
+  ]
+}
+
+// Deploy App Service Plan
+module appServicePlan 'modules/app-service-plan.bicep' = {
+  name: 'appServicePlan-${userAlias}'
+  params: {
+    location: location
+    appServicePlanName: appServicePlanName
+    skuName: (environmentType == 'prod') ? 'B1' : 'B1'
+  }
+  dependsOn: [
+    postgreSQLDatabase
+  ]
+}
 
 
+module appServiceWebsiteBE './modules/app-service-container.bicep' = {
+  name: 'appbe-${userAlias}'
+  params: {
+    name: appServiceWebsiteBEName
+    location: location
+    appServicePlanId: appServicePlan.outputs.id
+    appSettings: appServiceWebsiteBeAppSettings
+    linuxFxVersion: 'PYTHON|3.11'
+  }
+  dependsOn: [
+    appServicePlan
+    postgreSQLDatabase
+  ]
+}
 
-output appServiceAppHostName string = appService.outputs.appServiceAppHostName
+module appServiceWebsiteFE './modules/app-service-website.bicep' = {
+  name: 'appfe-${userAlias}'
+  params: {
+    name: appServiceWebsiteFEName
+    location: location
+    appServicePlanId: appServicePlan.outputs.id
+    linuxFxVersion: 'NODE|18-lts'
+    appCommandLine: 'pm2 serve /home/site/wwwroot --spa --no-daemon'
+  }
+  dependsOn: [
+    appServicePlan
+  ]
+}
+
+output appServiceWebsiteBEHostName string = appServiceWebsiteBE.outputs.appServiceBackendHostName
+output appServiceWebsiteFEHostName string = appServiceWebsiteFE.outputs.appServiceAppHostName
+

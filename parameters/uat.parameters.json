@@ -5,6 +5,9 @@
     "environmentType": {
       "value": "uat"
     },
+    "dockerRegistryImageName": {
+      "value": "my-container-image"
+    },
     "userAlias": {
       "value": "makenna"
     },

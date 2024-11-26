@@ -17,10 +17,10 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' =
   name: name
   location: location
   sku: {
-    name: 'Basic' // Change to 'Standard' or 'Premium' if needed
+    name: 'Basic'
   }
   properties: {
-    adminUserEnabled: true
+    adminUserEnabled: true // this line allows the ACR to generate a username and password (admin credentials) for authentication.
   }
   dependsOn: [
     adminCredentialsKeyVault

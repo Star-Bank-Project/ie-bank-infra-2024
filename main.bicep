@@ -15,6 +15,11 @@ param appServiceWebsiteBEName string
 param appServiceWebsiteFEName string 
 param location string = resourceGroup().location
 param appServiceWebsiteBeAppSettings array
+param dockerRegistryImageName string
+param dockerRegistryImageVersion string = 'latest'
+
+// var acrUsernameSecretName = 'acr-username'
+// var acrPassword0SecretName = 'acr-password0'
 
 module acr './modules/acr.bicep' = {
   name: 'acr-${userAlias}'
@@ -39,13 +44,17 @@ module keyVault './modules/keyVault.bicep' = {
   }
 }
 
-module postgreSQLServer './modules/postgre-sql-server.bicep' = {
-  name: 'pgsqlsrv-${userAlias}'
+module postgresSQLServer 'modules/postgre-sql-server.bicep' = {
+  name: 'psqlsrv-${userAlias}'
   params: {
-    name: postgreSQLServerName
-    location: location
+  name: postgreSQLServerName
+  postgreSQLAdminServicePrincipalObjectId: appServiceWebsiteBE.outputs.systemAssignedIdentityPrincipalId
+  postgreSQLAdminServicePrincipalName: appServiceWebsiteBEName
   }
-}
+  dependsOn: [
+  appServiceWebsiteBE
+  ]
+  }
 
 module postgreSQLDatabase 'modules/postgre-sql-db.bicep' = {
   name: 'psqldb-${userAlias}'
@@ -54,7 +63,7 @@ module postgreSQLDatabase 'modules/postgre-sql-db.bicep' = {
     postgresSqlServerName: postgreSQLServerName 
   }
   dependsOn: [
-    postgreSQLServer
+    postgresSQLServer
   ]
 }
 
@@ -66,26 +75,28 @@ module appServicePlan 'modules/app-service-plan.bicep' = {
     appServicePlanName: appServicePlanName
     skuName: (environmentType == 'prod') ? 'B1' : 'B1'
   }
-  dependsOn: [
-    postgreSQLDatabase
-  ]
 }
 
 
-module appServiceWebsiteBE './modules/app-service-container.bicep' = {
-  name: 'appbe-${userAlias}'
+module appServiceWebsiteBE 'modules/app-service-container.bicep' = {
+  name: 'appfe-${userAlias}'
   params: {
-    name: appServiceWebsiteBEName
-    location: location
-    appServicePlanId: appServicePlan.outputs.id
-    appSettings: appServiceWebsiteBeAppSettings
-    linuxFxVersion: 'PYTHON|3.11'
+  name: appServiceWebsiteBEName
+  location: location
+  appServicePlanId: appServicePlan.outputs.id
+  appCommandLine: ''
+  appSettings: appServiceWebsiteBeAppSettings
+  dockerRegistryName: containerRegistryName
+  dockerRegistryImageName: dockerRegistryImageName
+  dockerRegistryImageVersion: dockerRegistryImageVersion
+  keyVaultName: keyVaultName
   }
   dependsOn: [
-    appServicePlan
-    postgreSQLDatabase
+  appServicePlan
+  acr
+  keyVault
   ]
-}
+  }
 
 module appServiceWebsiteFE './modules/app-service-website.bicep' = {
   name: 'appfe-${userAlias}'

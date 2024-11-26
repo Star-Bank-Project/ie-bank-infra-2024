@@ -1,5 +1,7 @@
 param location string = resourceGroup().location
 param name string
+param postgreSQLAdminServicePrincipalObjectId string
+param postgreSQLAdminServicePrincipalName string
 
 resource postgreSQLServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01' = {
   name: name
@@ -9,9 +11,9 @@ resource postgreSQLServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01'
     tier: 'Burstable'
   }
   properties: {
-    administratorLogin: 'iebankadmin'
-    administratorLoginPassword: 'IE.Bank.DB.Admin.Pa55'
-    version: '15'
+    administratorLogin: 'iebankdbadmin'
+    // administratorLoginPassword: 'IE.Bank.DB.Admin.Pa$$'
+    createMode: 'Default'
     highAvailability: {
       mode: 'Disabled'
       standbyAvailabilityZone: ''
@@ -20,21 +22,37 @@ resource postgreSQLServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01'
       storageSizeGB: 32
     }
     backup: {
-      geoRedundantBackup: 'Disabled'
       backupRetentionDays: 7
+      geoRedundantBackup: 'Disabled'
     }
+    version: '15'
+    authConfig: {
+      activeDirectoryAuth: 'Enabled'
+      passwordAuth: 'Enabled'
+    }
+    tenantId: subscription().tenantId
   }
 }
 
 resource postgreSQLServerFirewallRules 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2022-12-01' = {
-  parent: postgreSQLServer
-  name: 'AllowAllAzureServicesAndResourcesWithinAzureIps'
+  name: '${postgreSQLServer.name}/AllowAllAzureServicesAndResourcesWithinAzureIps'
   properties: {
     startIpAddress: '0.0.0.0'
     endIpAddress: '0.0.0.0'
   }
 }
 
+resource postgreSQLAdministrators 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@2022-12-01' = {
+  name: postgreSQLAdminServicePrincipalObjectId
+  properties: {
+    principalName: postgreSQLAdminServicePrincipalName
+    principalType: 'ServicePrincipal'
+    tenantId: subscription().tenantId
+  }
+  dependsOn: [
+    postgreSQLServerFirewallRules
+  ]
+}
 
 output id string = postgreSQLServer.id
 output fullyQualifiedDomainName string = postgreSQLServer.properties.fullyQualifiedDomainName

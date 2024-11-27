@@ -45,6 +45,7 @@ resource postgreSQLServerFirewallRules 'Microsoft.DBforPostgreSQL/flexibleServer
 
 //this is the managed identity aspect
 resource postgreSQLAdministrators 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@2022-12-01' = {
+  parent: postgreSQLServer
   name: postgreSQLAdminServicePrincipalObjectId
   properties: {
     principalName: postgreSQLAdminServicePrincipalName

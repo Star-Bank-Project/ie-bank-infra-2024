@@ -6,21 +6,15 @@ param location string = resourceGroup().location
 
 @description('The name of the Key Vault where credentials will be stored')
 param keyVaultName string
-@secure()
-param keyVaultSecretAdminUsername string 
-@secure()
-param keyVaultSecretAdminPassword0 string 
-@secure()
-param keyVaultSecretAdminPassword1 string 
 
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
   name: name
   location: location
   sku: {
-    name: 'Basic' // Change to 'Standard' or 'Premium' if needed
+    name: 'Basic'
   }
   properties: {
-    adminUserEnabled: true
+    adminUserEnabled: true // Enables admin credentials
   }
   dependsOn: [
     adminCredentialsKeyVault
@@ -33,33 +27,23 @@ resource adminCredentialsKeyVault 'Microsoft.KeyVault/vaults@2021-10-01' existin
   scope: resourceGroup()
 }
 
-// Store the ACR admin username in the Key Vault
+// Store the ACR admin username as `dockerRegistryServerUserName`
 resource secretAdminUserName 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
-  name: keyVaultSecretAdminUsername
+  name: 'dockerRegistryServerUserName'
   parent: adminCredentialsKeyVault
   properties: {
     value: containerRegistry.listCredentials().username
   }
 }
 
-// Store the first ACR admin password in the Key Vault
+// Store the first ACR admin password as `dockerRegistryServerPassword`
 resource secretAdminUserPassword0 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
-  name: keyVaultSecretAdminPassword0
+  name: 'dockerRegistryServerPassword'
   parent: adminCredentialsKeyVault
   properties: {
     value: containerRegistry.listCredentials().passwords[0].value
   }
 }
 
-// Store the second ACR admin password in the Key Vault
-resource secretAdminUserPassword1 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
-  name: keyVaultSecretAdminPassword1
-  parent: adminCredentialsKeyVault
-  properties: {
-    value: containerRegistry.listCredentials().passwords[1].value
-  }
-}
-
 // Output the ACR name
 output containerRegistryName string = containerRegistry.name
-

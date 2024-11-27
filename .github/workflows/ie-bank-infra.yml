@@ -35,6 +35,9 @@ jobs:
       - uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Debug Key Vault Secrets
+        run: az keyvault secret list --vault-name makenna-keyvault-dev --query "[].name" -o tsv
+        
       - name: Retrieve secrets from Key Vault
         run: |
           az keyvault secret show --name ACR-Admin-Username --vault-name makenna-keyvault-dev --query value -o tsv > acrAdminUsername.txt

@@ -3,16 +3,16 @@
   'prod'
   'uat'
 ])
-param environmentType string 
+param environmentType string
 param userAlias string
-param containerRegistryName string 
-param keyVaultName string 
+param containerRegistryName string
+param keyVaultName string
 param roleAssignments array = []
-param postgreSQLServerName string 
+param postgreSQLServerName string
 param postgreSQLDatabaseName string
-param appServicePlanName string 
-param appServiceWebsiteBEName string 
-param appServiceWebsiteFEName string 
+param appServicePlanName string
+param appServiceWebsiteBEName string
+param appServiceWebsiteFEName string
 param location string = resourceGroup().location
 param appServiceWebsiteBeAppSettings array
 param dockerRegistryImageName string
@@ -23,8 +23,8 @@ param acrAdminPassword0 string
 @secure()
 param acrAdminPassword1 string
 
-var acrUsernameSecretName = 'acr-username'
-var acrPassword0SecretName = 'acr-password0'
+var acrUsernameSecretName = 'acrAdminUsername'
+var acrPassword0SecretName = 'acrAdminPassword0'
 
 module acr './modules/acr.bicep' = {
   name: 'acr-${userAlias}'
@@ -64,8 +64,8 @@ module postgresSQLServer 'modules/postgre-sql-server.bicep' = {
 module postgreSQLDatabase 'modules/postgre-sql-db.bicep' = {
   name: 'psqldb-${userAlias}'
   params: {
-    name: postgreSQLDatabaseName 
-    postgresSqlServerName: postgreSQLServerName 
+    name: postgreSQLDatabaseName
+    postgresSqlServerName: postgreSQLServerName
   }
   dependsOn: [
     postgresSQLServer
@@ -123,4 +123,3 @@ module appServiceWebsiteFE './modules/app-service-website.bicep' = {
 
 output appServiceWebsiteBEHostName string = appServiceWebsiteBE.outputs.appServiceBackendHostName
 output appServiceWebsiteFEHostName string = appServiceWebsiteFE.outputs.appServiceAppHostName
-

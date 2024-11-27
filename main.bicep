@@ -95,8 +95,10 @@ module appServiceWebsiteBE 'modules/app-service-container.bicep' = {
   appCommandLine: ''
   appSettings: appServiceWebsiteBeAppSettings //change: "keyvault please, get the value from getSecret"
   dockerRegistryName: containerRegistryName
-  dockerRegistryServerUserName: listSecrets(keyVaultReference.id, acrUsernameSecretName).value
-    dockerRegistryServerPassword: listSecrets(keyVaultReference.id, acrPassword0SecretName).value
+  // dockerRegistryServerUserName: listSecrets(keyVaultReference.id, acrUsernameSecretName).value
+  // dockerRegistryServerPassword: listSecrets(keyVaultReference.id, acrPassword0SecretName).value
+  dockerRegistryServerUserName: keyVaultReference.getSecret(acrUsernameSecretName)
+  dockerRegistryServerPassword: keyVaultReference.getSecret(acrPassword0SecretName)
   dockerRegistryImageName: dockerRegistryImageName
   dockerRegistryImageVersion: dockerRegistryImageVersion
   }

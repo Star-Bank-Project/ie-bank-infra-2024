@@ -12,7 +12,7 @@ resource postgreSQLServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01'
   }
   properties: {
     administratorLogin: 'iebankdbadmin'
-    // administratorLoginPassword: 'IE.Bank.DB.Admin.Pa$$'
+    administratorLoginPassword: 'IE.Bank.DB.Admin.Pa$$'
     createMode: 'Default'
     highAvailability: {
       mode: 'Disabled'

@@ -87,7 +87,7 @@ resource keyVaultReference 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
 }
 
 module appServiceWebsiteBE 'modules/app-service-container.bicep' = {
-  name: 'appfe-${userAlias}'
+  name: 'appbe-${userAlias}'
   params: {
   name: appServiceWebsiteBEName
   location: location

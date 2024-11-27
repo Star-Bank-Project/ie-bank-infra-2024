@@ -30,7 +30,7 @@ resource postgreSQLServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01'
       activeDirectoryAuth: 'Enabled'
       passwordAuth: 'Enabled'
     }
-    tenantId: subscription().tenantId
+    //tenantId: subscription().tenantId
   }
 }
 

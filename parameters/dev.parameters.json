@@ -15,13 +15,13 @@
       "value": "makennaacrdev"
     },
     "acrAdminUsername": {
-  "value": "acrAdminUsername"
+      "value": "@Microsoft.KeyVault(SecretUri=https://makenna-keyvault-dev.vault.azure.net/secrets/acrAdminUsername)"
     },
     "acrAdminPassword0": {
-      "value": "acrAdminPassword0"
+      "value": "@Microsoft.KeyVault(SecretUri=https://makenna-keyvault-dev.vault.azure.net/secrets/acrAdminPassword0)"
     },
     "acrAdminPassword1": {
-      "value": "acrAdminPassword1"
+      "value": "@Microsoft.KeyVault(SecretUri=https://makenna-keyvault-dev.vault.azure.net/secrets/acrAdminPassword1)"
     },
     "keyVaultName": {
       "value": "makenna-keyvault-dev"

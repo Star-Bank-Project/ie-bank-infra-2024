@@ -17,9 +17,14 @@ param location string = resourceGroup().location
 param appServiceWebsiteBeAppSettings array
 param dockerRegistryImageName string
 param dockerRegistryImageVersion string = 'latest'
+param acrAdminUsername string
+@secure()
+param acrAdminPassword0 string
+@secure()
+param acrAdminPassword1 string
 
-// var acrUsernameSecretName = 'acr-username'
-// var acrPassword0SecretName = 'acr-password0'
+var acrUsernameSecretName = 'acr-username'
+var acrPassword0SecretName = 'acr-password0'
 
 module acr './modules/acr.bicep' = {
   name: 'acr-${userAlias}'
@@ -27,9 +32,9 @@ module acr './modules/acr.bicep' = {
     name: containerRegistryName
     location: location
     keyVaultName: keyVaultName
-    keyVaultSecretAdminUsername: 'acrAdminUsername' // Secret name for the admin username
-    keyVaultSecretAdminPassword0: 'acrAdminPassword0' // Secret name for password 0
-    keyVaultSecretAdminPassword1: 'acrAdminPassword1' // Secret name for password 1
+    keyVaultSecretAdminUsername: acrAdminUsername // Secret name for the admin username
+    keyVaultSecretAdminPassword0: acrAdminPassword0 // Secret name for password 0
+    keyVaultSecretAdminPassword1: acrAdminPassword1 // Secret name for password 1
   }
 }
 
@@ -77,6 +82,9 @@ module appServicePlan 'modules/app-service-plan.bicep' = {
   }
 }
 
+resource keyVaultReference 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
+  name: keyVaultName
+}
 
 module appServiceWebsiteBE 'modules/app-service-container.bicep' = {
   name: 'appfe-${userAlias}'
@@ -85,11 +93,12 @@ module appServiceWebsiteBE 'modules/app-service-container.bicep' = {
   location: location
   appServicePlanId: appServicePlan.outputs.id
   appCommandLine: ''
-  appSettings: appServiceWebsiteBeAppSettings
+  appSettings: appServiceWebsiteBeAppSettings //change: "keyvault please, get the value from getSecret"
   dockerRegistryName: containerRegistryName
+  dockerRegistryServerUserName: keyVaultReference.getSecret(acrUsernameSecretName)
+  dockerRegistryServerPassword: keyVaultReference.getSecret(acrPassword0SecretName)
   dockerRegistryImageName: dockerRegistryImageName
   dockerRegistryImageVersion: dockerRegistryImageVersion
-  keyVaultName: keyVaultName
   }
   dependsOn: [
   appServicePlan

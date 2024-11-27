@@ -1,8 +1,11 @@
 param location string = resourceGroup().location
 param name string
 param appServicePlanId string
-param keyVaultName string
 param dockerRegistryName string
+@secure()
+param dockerRegistryServerUserName string
+@secure()
+param dockerRegistryServerPassword string
 param dockerRegistryImageName string
 param dockerRegistryImageVersion string = 'latest'
 param appSettings array = []
@@ -10,14 +13,14 @@ param appCommandLine string = ''
 
 var dockerAppSettings = [
   { name: 'DOCKER_REGISTRY_SERVER_URL', value: 'https://${dockerRegistryName}.azurecr.io' }
-  { name: 'DOCKER_REGISTRY_SERVER_USERNAME', value: '@Microsoft.KeyVault(SecretUri=https://${keyVaultName}.vault.azure.net/secrets/acrUsernameSecretName)' }
-  { name: 'DOCKER_REGISTRY_SERVER_PASSWORD', value: '@Microsoft.KeyVault(SecretUri=https://${keyVaultName}.vault.azure.net/secrets/secretAdminUserPassword0)' }
-]
+  { name: 'DOCKER_REGISTRY_SERVER_USERNAME', value: dockerRegistryServerUserName }
+  { name: 'DOCKER_REGISTRY_SERVER_PASSWORD', value: dockerRegistryServerPassword }
+  ]
 
 resource appServiceApp 'Microsoft.Web/sites@2022-03-01' = {
   name: name
   location: location
-  identity: { type: 'SystemAssigned' }
+  identity: { type: 'SystemAssigned' } //this creates the system assigned identity
   properties: {
     serverFarmId: appServicePlanId
     httpsOnly: true

@@ -1,18 +1,15 @@
 name: ie-bank-infra
 on:
-  workflow_dispatch:  # This allows manual triggering
-  push:
-    branches:
-      - '*'  # This will run on any branch
-    paths:
-      - 'infra/**'
-      - '!infra/scripts/**'
+  workflow_dispatch: #Allows you to manually trigger the workflow from the GitHub Actions tab.
   pull_request:
-    branches:
-      - main  # This will run on pull requests to main
-    paths:
-      - 'infra/**'
-      - '!infra/scripts/**'
+      branches:
+        - main
+  push:
+      branches:
+        - '*'
+      paths-ignore:
+        - 'scripts/**'
+
 
 env:
   RESOURCE_GROUP_DEV: BCSAI2024-DEVOPS-STUDENTS-B-DEV

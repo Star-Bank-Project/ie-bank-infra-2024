@@ -23,8 +23,8 @@ param acrAdminPassword0 string
 @secure()
 param acrAdminPassword1 string
 
-var acrUsernameSecretName = 'acr-username'
-var acrPassword0SecretName = 'acr-password0'
+var acrUsernameSecretName = 'acrAdminUsername'
+var acrPassword0SecretName = 'acrAdminPassword0'
 
 module acr './modules/acr.bicep' = {
   name: 'acr-${userAlias}'
@@ -95,8 +95,8 @@ module appServiceWebsiteBE 'modules/app-service-container.bicep' = {
   appCommandLine: ''
   appSettings: appServiceWebsiteBeAppSettings //change: "keyvault please, get the value from getSecret"
   dockerRegistryName: containerRegistryName
-  dockerRegistryServerUserName: keyVaultReference.getSecret(acrUsernameSecretName)
-  dockerRegistryServerPassword: keyVaultReference.getSecret(acrPassword0SecretName)
+  dockerRegistryServerUserName: listSecrets(keyVaultReference.id, acrUsernameSecretName).value
+  dockerRegistryServerPassword: listSecrets(keyVaultReference.id, acrPassword0SecretName).value
   dockerRegistryImageName: dockerRegistryImageName
   dockerRegistryImageVersion: dockerRegistryImageVersion
   }

@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Run Bicep linter
-        run: az bicep build --file ./infra/main.bicep
+        run: az bicep build --file ./main.bicep
 
   deploy-dev:
     runs-on: ubuntu-latest

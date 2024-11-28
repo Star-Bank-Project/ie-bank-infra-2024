@@ -9,24 +9,34 @@
 *Figure 1: Infrastructure Architechture Design*
 
 #### GitHub
+Github is the platform we used to host our infrastructure repository. The repo contains Bicep templates for each resource (see below). Github actions was used to fulfill the resource deployments.
 
-#### App Service for containers
+#### App Service for containers 
+The main purpose of the App Service Container is to host the containerized backend application. It retrieves the Azure Container Registry credentials from the Key Vault which enables access to pull the container image for the backend. This resource depends on the App Service Plan for the compute resources, the Key Vault for secret retrieval, and the Azure Container Registry for the container image hosting. The App Service for Containers inputs the `appServicePlan.id` to link to the App Service Plan. The App Service for Containers outputs the App Service Host Name and the Managed Identity Principle ID.
 
-#### App Service Plan
+#### App Service Plan 
+The App Service Plan is used to allocate resrouces (such as CPU, memory, etc.) to the app services (static website and container for backend). The App Service Plan outputs the `appServicePlan.id`.
 
 #### PostgreSQL database
+The PostgreSQL database is used to store and manage the user account information. It is hosted by the PostgreSQL server.
 
-#### Static website
+#### PostgreSQL server
+This server provides access to the database by securely accessing the App Service Back End by using the admin managed identity. The postgreSQLAdministrators resource configures an Azure Active Directory service principle as the admin of the database by passing in the Managed Identity Principle ID from the App Service for Containers. The Admin is able to manage the databases, users, and permissions. The Server bicep outputs the `postgreSQLServer.id`.
+
+#### Static website 
+The static website resource hosts the front end. It inputs the `appServicePlan.id` to link to the App Service Plan for its necessary resources. One interesting configuration is the `httpsOnly` set to true to ensure communication between users and the static site is secure. The static website outputs the hostname (a URL) for access to the deployed app.
 
 #### Azure Container Registry
+The Azure Container Registry stores the container images that will be used by the App Service. The ACR generates a user and two passwords that are needed by other modules for access. The ACR credential values are dynamically fetched using the `listCredentials` function and are stored in the Key Vault as secrets.
 
 #### Key Vault
+The Key Vault stores and encrpts sensitive information like the ACR credentials. By using a Key Vault, we securely access them without ever exposing them in plain text.
 
 #### Log Analytics Workspace
+The Log Analytics Workspace collects, stores, and analyzes log and telemetry data from the resources for monitoring.
 
 #### Application Insights
-
-#### _(TO DO: Any other service to be used (Has to be coordinated with the rest of the team))_
+Application Insights provides insights into the application performance, user behavior, and diagnostics of both the front and back end, which enables proactive issue detection and resolution.
 
 ### Environment Design
 

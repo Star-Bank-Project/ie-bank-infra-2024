@@ -135,11 +135,10 @@ https://best.openssf.org/Concise-Guide-for-Developing-More-Secure-Software
 | SE:12  | Define and test effective incident response procedures.                                                                                           |                |
 
 #### Cost Optimization
+  - Burstable SKU for PostgreSQL Server: This setting configures the PostgreSQL server with the Standard_B1ms SKU, a burstable VM type (meaning that the server can “burst” to higher levels to support occasional spikes in usage). This setup optimizes costs by allocating resources dynamically.
+  - Basic SKU for Azure Container Registry: The ACR’s SKU is set to Basic in the dev and UAT environments, which reduces costs for non-critical workloads while still supporting required container operations.
+  - Environment-Specific Parameters: Beneficial because it allows environment specific parameters to ensure that non-production environments use less expensive resources, (ex: flask_debug is set to 0 in non production environments) while still offering flexibility in the prod environment.
 
-- SKU tier optimization: we will set the SKU to 'free' for the dev enviornment to reduce cost in this low traffic environment. The UAT and Production environment SKUs will be set to 'basic', which also are more cost-effective.
-- CDN Configuration (static site): enabled in the production environment to improve performance and reduce bandwidth costs, which reduces latency for global users, and decreases data transfer costs through caching.
-- CostCenter tag (static site): this will be enabled to provide cost tracking.
-- ... add more based on other bicep files created
 
 | CO:NUM | Description                                                                                                                                                                   | Implementation |
 | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
@@ -180,10 +179,8 @@ https://best.openssf.org/Concise-Guide-for-Developing-More-Secure-Software
 
 #### Performance Efficiency
 
-- CDN (static site): enabled in the production environment to deliver static content efficiently to users, reducing latency and improving page load times for users.
-- Private endpoints (static site and database): ensures secure, low latency communication between resources
+- Parameterized Deployments with Bicep: Adapts deployments to specific environment needs, without requiring manual changes.
 - Application insights monitoring: Integrated for all environments to monitor application performance metrics and identify bottlenecks, allowing for proactive optimization.
-- ... to be continued
 - Conduct load testing for SLI 2: Page Load Time and SLI 3: Transaction Processing Time.
 - Optimize scalability of infrastructure to handle peak loads while maintaining performance thresholds.
 

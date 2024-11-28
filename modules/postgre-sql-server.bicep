@@ -62,13 +62,15 @@ resource postgreSQLDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01
   name: 'postgreSQLDiagnostics'
   scope: postgreSQLServer
   properties: {
-    logs: [
-      { category: 'PostgreSQLLogs', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
-      { category: 'QueryStoreRuntimeStatistics', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
-      { category: 'QueryStoreWaitStatistics', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
-    ]
     metrics: [
-      { category: 'AllMetrics', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
+      {
+        category: 'AllMetrics'
+        enabled: true
+        retentionPolicy: {
+          enabled: false
+          days: 0
+        }
+      }
     ]
     workspaceId: logAnalyticsWorkspaceId
   }

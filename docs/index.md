@@ -236,7 +236,12 @@ https://best.openssf.org/Concise-Guide-for-Developing-More-Secure-Software
 ## Software Design & Planning
 
 ### Release Strategy Design
+The release strategy follows a DTAP (Development, Testing, Acceptance, and Production) environment approach. Each environment is managed separately, leveraging Azure services to ensure proper isolation and scalability. GitHub Actions have been configured to handle CI/CD for development, UAT, and production workflows. The strategy ensures:
 
+Development branch triggers deployment to the DEV environment.
+Pull requests to the main branch deploy to UAT.
+Successful merges into the main branch trigger production deployments.
+The strategy also incorporates Test-Driven Development (TDD) principles to validate functionality before integration, ensuring quality and robustness at every stage.
 ### CI/CD Pipeline and Release Strategy
 
 https://learn.microsoft.com/en-us/devops/devsecops/enable-devsecops-azure-github#secure-your-code-with-github
@@ -244,14 +249,50 @@ https://learn.microsoft.com/en-us/devops/devsecops/enable-devsecops-azure-github
 #### Frontend
 
 **CI Description**
+The CI pipeline automates testing and building Vue.js-based frontend applications.
+Steps:
+
+Dependency Installation: Ensures all project dependencies are resolved via npm install.
+Build Verification: Builds the frontend using the build:dev or build:uat script depending on the branch/environment.
+Linting/Static Analysis: Ensures the code adheres to style guidelines to avoid syntax and logic errors.
+Artifact Upload: Prepared builds are uploaded for deployment.
+- Errors addressed:
+
+  - Missing dependencies (e.g., axios, vue-router) were resolved by updating package.json.
+  - Adjusted vue.config.js for compatibility with development and UAT builds
 
 **CD Description**
+The CD pipeline deploys built artifacts to the respective Azure environments:
+
+Artifact Download: Downloads the prepared build artifacts.
+Azure Login: Authenticates with Azure using a service principal.
+Deployment: Deploys the frontend to the static web app service for DEV or UAT, depending on the trigger.
+- Fixed Issues:
+
+Proper artifact paths (dist-dev or dist-uat) ensured successful deployments without file-not-found errors.
 
 #### Backend
 
 **CI Description**
+The CI pipeline validates the Flask backend API:
+
+Environment Setup: Python dependencies are installed, including test libraries.
+Linting: Static analysis using tools like Flake8.
+Unit Testing: Pytest is used for unit tests with PostgreSQL configuration through GitHub secrets.
+Coverage Reports: Generates code coverage reports for validation.
+Fixed Issues:
+
+Addressed missing SQLALCHEMY_DATABASE_URI environment variables by properly setting secrets in workflows.
 
 **CD Description**
+The CD pipeline builds and deploys the Flask backend as a Docker container:
+
+Docker Build: Creates container images for DEV or UAT using environment-specific Dockerfiles.
+Push to Registry: Publishes images to Azure Container Registry.
+App Service Deployment: Deploys containers to Azure App Service.
+- Fixed Issues:
+
+Fixed missing Dockerfiles and resolved registry authentication failures by retrieving credentials from Azure Key Vault.
 
 ### Use Cases and Sequential Model Design
 

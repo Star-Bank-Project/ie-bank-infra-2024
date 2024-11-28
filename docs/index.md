@@ -44,35 +44,36 @@ Application Insights provides insights into the application performance, user be
   - And what configuration will our Azure services have for each environment?
 - with the infra dev and the full stack dev
 
-#### Devlopment Environment (DEV)
+#### **Development Environment (DEV)**
 
-parameters to pass in for each.
+| Azure Infra Service                  | Configurations                                                                                       |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| **GitHub**                           | Triggers deployments via `push` or `workflow_dispatch` (manually). Uses separate `RESOURCE_GROUP_DEV`. |
+| **App Service for containers**       | `makenna-be-dev`, connected to the ACR for pulling the backend container image securely.              |
+| **App Service Plan**                 | `makenna-asp-dev`, SKU: `B1`, used for compute resources for backend and frontend.                    |
+| **PostgreSQL database**              | `makenna-db-dev`, hosted on `makenna-dbsrv-dev` with admin identity and AAD authentication enabled.   |
+| **Static website**                   | `makenna-fe-dev`, hosted in the same `App Service Plan` as the backend.                               |
+| **Azure Container Registry**         | `makennaacrdev`, stores backend container images. Admin credentials securely stored in Key Vault.     |
+| **Key Vault**                        | `makenna-keyvault-dev`, stores sensitive credentials like ACR admin credentials and PostgreSQL users. |
+| **Log Analytics Workspace**          | Used for monitoring and collecting log data for resources in the development environment. **(check w/SRE)**           |
+| **Application Insights**             | Configured for backend and frontend App Services to monitor application performance and diagnose issues. **(check w/SRE)**|
 
-| Azure Infra Service                  | Configurations |
-| ------------------------------------ | -------------- |
-| **GitHub**                     |                |
-| **App Service for containers** |                |
-| **App Service Plan**           |                |
-| **PostgreSQL database**        |                |
-| **Static website**             |                |
-| **Azure Container Registry**   |                |
-| **Key Vault**                  |                |
-| **Log Analytics Workspace**    |                |
-| **Application Insights**       |                |
+---
 
-#### User Acceptance Testing Environment (UAT)
+#### **User Acceptance Testing Environment (UAT)**
 
-| Azure Infra Service                  | Configurations |
-| ------------------------------------ | -------------- |
-| **GitHub**                     |                |
-| **App Service for containers** |                |
-| **App Service Plan**           |                |
-| **PostgreSQL database**        |                |
-| **Static website**             |                |
-| **Azure Container Registry**   |                |
-| **Key Vault**                  |                |
-| **Log Analytics Workspace**    |                |
-| **Application Insights**       |                |
+| Azure Infra Service                  | Configurations                                                                                       |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| **GitHub**                           | Triggers deployments via `pull_request` or `workflow_dispatch`. Uses separate `RESOURCE_GROUP_UAT`.   |
+| **App Service for containers**       | `makenna-be-uat`, connected to the ACR for pulling the backend container image securely.              |
+| **App Service Plan**                 | `makenna-asp-uat`, SKU: `B1`, used for compute resources for backend and frontend.                    |
+| **PostgreSQL database**              | `makenna-db-uat`, hosted on `makenna-dbsrv-uat` with admin identity and AAD authentication enabled.   |
+| **Static website**                   | `makenna-fe-uat`, hosted in the same `App Service Plan` as the backend.                               |
+| **Azure Container Registry**         | `makennaacruat`, stores backend container images. Admin credentials securely stored in Key Vault.     |
+| **Key Vault**                        | `makenna-keyvault-uat`, stores sensitive credentials like ACR admin credentials and PostgreSQL users. |
+| **Log Analytics Workspace**          | Used for monitoring and collecting log data for resources in the user acceptance testing environment.**(check w/SRE)** |
+| **Application Insights**             | Configured for backend and frontend App Services to monitor application performance and diagnose issues. **(check w/SRE)**|
+
 
 #### Production Environment (PROD)
 

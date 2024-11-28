@@ -15,6 +15,16 @@ param appServiceWebsiteBEName string
 param appServiceWebsiteFEName string 
 param location string = resourceGroup().location
 param appServiceWebsiteBeAppSettings array
+param dockerRegistryImageName string
+param dockerRegistryImageVersion string = 'latest'
+param acrAdminUsername string
+@secure()
+param acrAdminPassword0 string
+@secure()
+param acrAdminPassword1 string
+
+var acrUsernameSecretName = 'acrAdminUsername'
+var acrPassword0SecretName = 'acrAdminPassword0'
 
 module acr './modules/acr.bicep' = {
   name: 'acr-${userAlias}'
@@ -22,9 +32,9 @@ module acr './modules/acr.bicep' = {
     name: containerRegistryName
     location: location
     keyVaultName: keyVaultName
-    keyVaultSecretAdminUsername: 'acrAdminUsername' // Secret name for the admin username
-    keyVaultSecretAdminPassword0: 'acrAdminPassword0' // Secret name for password 0
-    keyVaultSecretAdminPassword1: 'acrAdminPassword1' // Secret name for password 1
+    keyVaultSecretAdminUsername: acrAdminUsername // Secret name for the admin username
+    keyVaultSecretAdminPassword0: acrAdminPassword0 // Secret name for password 0
+    keyVaultSecretAdminPassword1: acrAdminPassword1 // Secret name for password 1
   }
 }
 
@@ -39,13 +49,17 @@ module keyVault './modules/keyVault.bicep' = {
   }
 }
 
-module postgreSQLServer './modules/postgre-sql-server.bicep' = {
-  name: 'pgsqlsrv-${userAlias}'
+module postgresSQLServer 'modules/postgre-sql-server.bicep' = {
+  name: 'psqlsrv-${userAlias}'
   params: {
-    name: postgreSQLServerName
-    location: location
+  name: postgreSQLServerName
+  postgreSQLAdminServicePrincipalObjectId: appServiceWebsiteBE.outputs.systemAssignedIdentityPrincipalId
+  postgreSQLAdminServicePrincipalName: appServiceWebsiteBEName
   }
-}
+  dependsOn: [
+  appServiceWebsiteBE
+  ]
+  }
 
 module postgreSQLDatabase 'modules/postgre-sql-db.bicep' = {
   name: 'psqldb-${userAlias}'
@@ -54,7 +68,7 @@ module postgreSQLDatabase 'modules/postgre-sql-db.bicep' = {
     postgresSqlServerName: postgreSQLServerName 
   }
   dependsOn: [
-    postgreSQLServer
+    postgresSQLServer
   ]
 }
 
@@ -66,26 +80,34 @@ module appServicePlan 'modules/app-service-plan.bicep' = {
     appServicePlanName: appServicePlanName
     skuName: (environmentType == 'prod') ? 'B1' : 'B1'
   }
-  dependsOn: [
-    postgreSQLDatabase
-  ]
 }
 
+resource keyVaultReference 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
+  name: keyVaultName
+}
 
-module appServiceWebsiteBE './modules/app-service-container.bicep' = {
+module appServiceWebsiteBE 'modules/app-service-container.bicep' = {
   name: 'appbe-${userAlias}'
   params: {
-    name: appServiceWebsiteBEName
-    location: location
-    appServicePlanId: appServicePlan.outputs.id
-    appSettings: appServiceWebsiteBeAppSettings
-    linuxFxVersion: 'PYTHON|3.11'
+  name: appServiceWebsiteBEName
+  location: location
+  appServicePlanId: appServicePlan.outputs.id
+  appCommandLine: ''
+  appSettings: appServiceWebsiteBeAppSettings //change: "keyvault please, get the value from getSecret"
+  dockerRegistryName: containerRegistryName
+  // dockerRegistryServerUserName: listSecrets(keyVaultReference.id, acrUsernameSecretName).value
+  // dockerRegistryServerPassword: listSecrets(keyVaultReference.id, acrPassword0SecretName).value
+  dockerRegistryServerUserName: keyVaultReference.getSecret(acrUsernameSecretName)
+  dockerRegistryServerPassword: keyVaultReference.getSecret(acrPassword0SecretName)
+  dockerRegistryImageName: dockerRegistryImageName
+  dockerRegistryImageVersion: dockerRegistryImageVersion
   }
   dependsOn: [
-    appServicePlan
-    postgreSQLDatabase
+  appServicePlan
+  acr
+  keyVault
   ]
-}
+  }
 
 module appServiceWebsiteFE './modules/app-service-website.bicep' = {
   name: 'appfe-${userAlias}'

@@ -1,0 +1,804 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.31.92.45157",
+      "templateHash": "14240607163016763763"
+    }
+  },
+  "parameters": {
+    "environmentType": {
+      "type": "string",
+      "allowedValues": [
+        "nonprod",
+        "prod",
+        "uat"
+      ]
+    },
+    "userAlias": {
+      "type": "string"
+    },
+    "containerRegistryName": {
+      "type": "string"
+    },
+    "keyVaultName": {
+      "type": "string"
+    },
+    "roleAssignments": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "postgreSQLServerName": {
+      "type": "string"
+    },
+    "postgreSQLDatabaseName": {
+      "type": "string"
+    },
+    "appServicePlanName": {
+      "type": "string"
+    },
+    "appServiceWebsiteBEName": {
+      "type": "string"
+    },
+    "appServiceWebsiteFEName": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "appServiceWebsiteBeAppSettings": {
+      "type": "array"
+    },
+    "dockerRegistryImageName": {
+      "type": "string"
+    },
+    "dockerRegistryImageVersion": {
+      "type": "string",
+      "defaultValue": "latest"
+    },
+    "acrAdminUsername": {
+      "type": "string"
+    },
+    "acrAdminPassword0": {
+      "type": "securestring"
+    },
+    "acrAdminPassword1": {
+      "type": "securestring"
+    }
+  },
+  "variables": {
+    "acrUsernameSecretName": "acrAdminUsername",
+    "acrPassword0SecretName": "acrAdminPassword0"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('acr-{0}', parameters('userAlias'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "name": {
+            "value": "[parameters('containerRegistryName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "keyVaultName": {
+            "value": "[parameters('keyVaultName')]"
+          },
+          "keyVaultSecretAdminUsername": {
+            "value": "[parameters('acrAdminUsername')]"
+          },
+          "keyVaultSecretAdminPassword0": {
+            "value": "[parameters('acrAdminPassword0')]"
+          },
+          "keyVaultSecretAdminPassword1": {
+            "value": "[parameters('acrAdminPassword1')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.31.92.45157",
+              "templateHash": "14215881121094354773"
+            }
+          },
+          "parameters": {
+            "name": {
+              "type": "string",
+              "metadata": {
+                "description": "The name of the Azure Container Registry"
+              }
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]",
+              "metadata": {
+                "description": "The location of the Azure Container Registry"
+              }
+            },
+            "keyVaultName": {
+              "type": "string",
+              "metadata": {
+                "description": "The name of the Key Vault where credentials will be stored"
+              }
+            },
+            "keyVaultSecretAdminUsername": {
+              "type": "securestring"
+            },
+            "keyVaultSecretAdminPassword0": {
+              "type": "securestring"
+            },
+            "keyVaultSecretAdminPassword1": {
+              "type": "securestring"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.ContainerRegistry/registries",
+              "apiVersion": "2023-07-01",
+              "name": "[parameters('name')]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Basic"
+              },
+              "properties": {
+                "adminUserEnabled": true
+              }
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults/secrets",
+              "apiVersion": "2023-02-01",
+              "name": "[format('{0}/{1}', parameters('keyVaultName'), parameters('keyVaultSecretAdminUsername'))]",
+              "properties": {
+                "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('name')), '2023-07-01').username]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.ContainerRegistry/registries', parameters('name'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults/secrets",
+              "apiVersion": "2023-02-01",
+              "name": "[format('{0}/{1}', parameters('keyVaultName'), parameters('keyVaultSecretAdminPassword0'))]",
+              "properties": {
+                "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('name')), '2023-07-01').passwords[0].value]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.ContainerRegistry/registries', parameters('name'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults/secrets",
+              "apiVersion": "2023-02-01",
+              "name": "[format('{0}/{1}', parameters('keyVaultName'), parameters('keyVaultSecretAdminPassword1'))]",
+              "properties": {
+                "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('name')), '2023-07-01').passwords[1].value]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.ContainerRegistry/registries', parameters('name'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "containerRegistryName": {
+              "type": "string",
+              "value": "[parameters('name')]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "KeyVaultModule",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "name": {
+            "value": "[parameters('keyVaultName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "enableVaultForDeployment": {
+            "value": true
+          },
+          "roleAssignments": {
+            "value": "[parameters('roleAssignments')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.31.92.45157",
+              "templateHash": "10150507549165253302"
+            }
+          },
+          "parameters": {
+            "name": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            },
+            "roleAssignments": {
+              "type": "array",
+              "defaultValue": []
+            },
+            "secrets": {
+              "type": "array",
+              "defaultValue": []
+            },
+            "enableVaultForDeployment": {
+              "type": "bool",
+              "defaultValue": false
+            }
+          },
+          "variables": {
+            "builtInRoleNames": {
+              "Key Vault Secrets User": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6')]",
+              "Key Vault Administrator": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '00482a5a-887f-4fb3-b363-3b7fe8e74483')]"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.KeyVault/vaults",
+              "apiVersion": "2022-07-01",
+              "name": "[parameters('name')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "enableRbacAuthorization": true,
+                "enableSoftDelete": false,
+                "enabledForTemplateDeployment": true,
+                "enabledForDeployment": "[parameters('enableVaultForDeployment')]",
+                "sku": {
+                  "family": "A",
+                  "name": "standard"
+                },
+                "tenantId": "[subscription().tenantId]",
+                "accessPolicies": []
+              }
+            },
+            {
+              "copy": {
+                "name": "keyVault_roleAssignments",
+                "count": "[length(parameters('roleAssignments'))]"
+              },
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('name'))]",
+              "name": "[guid(resourceId('Microsoft.KeyVault/vaults', parameters('name')), parameters('roleAssignments')[copyIndex()].principalId, variables('builtInRoleNames')[parameters('roleAssignments')[copyIndex()].roleDefinitionIdOrName])]",
+              "properties": {
+                "roleDefinitionId": "[variables('builtInRoleNames')[parameters('roleAssignments')[copyIndex()].roleDefinitionIdOrName]]",
+                "principalId": "[parameters('roleAssignments')[copyIndex()].principalId]",
+                "principalType": "[parameters('roleAssignments')[copyIndex()].principalType]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('name'))]"
+              ]
+            },
+            {
+              "copy": {
+                "name": "keyVaultSecrets",
+                "count": "[length(parameters('secrets'))]"
+              },
+              "type": "Microsoft.KeyVault/vaults/secrets",
+              "apiVersion": "2022-07-01",
+              "name": "[format('{0}/{1}', parameters('name'), parameters('secrets')[copyIndex()].name)]",
+              "properties": {
+                "value": "[parameters('secrets')[copyIndex()].value]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('name'))]"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('psqlsrv-{0}', parameters('userAlias'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "name": {
+            "value": "[parameters('postgreSQLServerName')]"
+          },
+          "postgreSQLAdminServicePrincipalObjectId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('appbe-{0}', parameters('userAlias'))), '2022-09-01').outputs.systemAssignedIdentityPrincipalId.value]"
+          },
+          "postgreSQLAdminServicePrincipalName": {
+            "value": "[parameters('appServiceWebsiteBEName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.31.92.45157",
+              "templateHash": "6017131527783363055"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "name": {
+              "type": "string"
+            },
+            "postgreSQLAdminServicePrincipalObjectId": {
+              "type": "string"
+            },
+            "postgreSQLAdminServicePrincipalName": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.DBforPostgreSQL/flexibleServers",
+              "apiVersion": "2022-12-01",
+              "name": "[parameters('name')]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Standard_B1ms",
+                "tier": "Burstable"
+              },
+              "properties": {
+                "administratorLogin": "iebankdbadmin",
+                "createMode": "Default",
+                "highAvailability": {
+                  "mode": "Disabled",
+                  "standbyAvailabilityZone": ""
+                },
+                "storage": {
+                  "storageSizeGB": 32
+                },
+                "backup": {
+                  "backupRetentionDays": 7,
+                  "geoRedundantBackup": "Disabled"
+                },
+                "version": "15",
+                "authConfig": {
+                  "activeDirectoryAuth": "Enabled",
+                  "passwordAuth": "Enabled"
+                }
+              }
+            },
+            {
+              "type": "Microsoft.DBforPostgreSQL/flexibleServers/firewallRules",
+              "apiVersion": "2022-12-01",
+              "name": "[format('{0}/{1}', parameters('name'), 'AllowAllAzureServicesAndResourcesWithinAzureIps')]",
+              "properties": {
+                "startIpAddress": "0.0.0.0",
+                "endIpAddress": "0.0.0.0"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.DBforPostgreSQL/flexibleServers', parameters('name'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.DBforPostgreSQL/flexibleServers/administrators",
+              "apiVersion": "2022-12-01",
+              "name": "[parameters('postgreSQLAdminServicePrincipalObjectId')]",
+              "properties": {
+                "principalName": "[parameters('postgreSQLAdminServicePrincipalName')]",
+                "principalType": "ServicePrincipal",
+                "tenantId": "[subscription().tenantId]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.DBforPostgreSQL/flexibleServers/firewallRules', parameters('name'), 'AllowAllAzureServicesAndResourcesWithinAzureIps')]"
+              ]
+            }
+          ],
+          "outputs": {
+            "id": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.DBforPostgreSQL/flexibleServers', parameters('name'))]"
+            },
+            "fullyQualifiedDomainName": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.DBforPostgreSQL/flexibleServers', parameters('name')), '2022-12-01').fullyQualifiedDomainName]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', format('appbe-{0}', parameters('userAlias')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('psqldb-{0}', parameters('userAlias'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "name": {
+            "value": "[parameters('postgreSQLDatabaseName')]"
+          },
+          "postgresSqlServerName": {
+            "value": "[parameters('postgreSQLServerName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.31.92.45157",
+              "templateHash": "15944121408379999562"
+            }
+          },
+          "parameters": {
+            "name": {
+              "type": "string"
+            },
+            "postgresSqlServerName": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.DBforPostgreSQL/flexibleServers/databases",
+              "apiVersion": "2022-12-01",
+              "name": "[format('{0}/{1}', parameters('postgresSqlServerName'), parameters('name'))]",
+              "properties": {
+                "charset": "UTF8",
+                "collation": "en_US.UTF8"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', format('psqlsrv-{0}', parameters('userAlias')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('appServicePlan-{0}', parameters('userAlias'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "appServicePlanName": {
+            "value": "[parameters('appServicePlanName')]"
+          },
+          "skuName": "[if(equals(parameters('environmentType'), 'prod'), createObject('value', 'B1'), createObject('value', 'B1'))]"
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.31.92.45157",
+              "templateHash": "4624638836358786328"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "appServicePlanName": {
+              "type": "string"
+            },
+            "skuName": {
+              "type": "string",
+              "allowedValues": [
+                "B1",
+                "F1"
+              ]
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/serverfarms",
+              "apiVersion": "2022-03-01",
+              "name": "[parameters('appServicePlanName')]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "[parameters('skuName')]"
+              },
+              "kind": "linux",
+              "properties": {
+                "reserved": true
+              }
+            }
+          ],
+          "outputs": {
+            "id": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('appbe-{0}', parameters('userAlias'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "name": {
+            "value": "[parameters('appServiceWebsiteBEName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "appServicePlanId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('appServicePlan-{0}', parameters('userAlias'))), '2022-09-01').outputs.id.value]"
+          },
+          "appCommandLine": {
+            "value": ""
+          },
+          "appSettings": {
+            "value": "[parameters('appServiceWebsiteBeAppSettings')]"
+          },
+          "dockerRegistryName": {
+            "value": "[parameters('containerRegistryName')]"
+          },
+          "dockerRegistryServerUserName": {
+            "value": "[listSecrets(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), variables('acrUsernameSecretName')).value]"
+          },
+          "dockerRegistryServerPassword": {
+            "value": "[listSecrets(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), variables('acrPassword0SecretName')).value]"
+          },
+          "dockerRegistryImageName": {
+            "value": "[parameters('dockerRegistryImageName')]"
+          },
+          "dockerRegistryImageVersion": {
+            "value": "[parameters('dockerRegistryImageVersion')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.31.92.45157",
+              "templateHash": "11338855208875514573"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "name": {
+              "type": "string"
+            },
+            "appServicePlanId": {
+              "type": "string"
+            },
+            "dockerRegistryName": {
+              "type": "string"
+            },
+            "dockerRegistryServerUserName": {
+              "type": "securestring"
+            },
+            "dockerRegistryServerPassword": {
+              "type": "securestring"
+            },
+            "dockerRegistryImageName": {
+              "type": "string"
+            },
+            "dockerRegistryImageVersion": {
+              "type": "string",
+              "defaultValue": "latest"
+            },
+            "appSettings": {
+              "type": "array",
+              "defaultValue": []
+            },
+            "appCommandLine": {
+              "type": "string",
+              "defaultValue": ""
+            }
+          },
+          "variables": {
+            "dockerAppSettings": [
+              {
+                "name": "DOCKER_REGISTRY_SERVER_URL",
+                "value": "[format('https://{0}.azurecr.io', parameters('dockerRegistryName'))]"
+              },
+              {
+                "name": "DOCKER_REGISTRY_SERVER_USERNAME",
+                "value": "[parameters('dockerRegistryServerUserName')]"
+              },
+              {
+                "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
+                "value": "[parameters('dockerRegistryServerPassword')]"
+              }
+            ]
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/sites",
+              "apiVersion": "2022-03-01",
+              "name": "[parameters('name')]",
+              "location": "[parameters('location')]",
+              "identity": {
+                "type": "SystemAssigned"
+              },
+              "properties": {
+                "serverFarmId": "[parameters('appServicePlanId')]",
+                "httpsOnly": true,
+                "siteConfig": {
+                  "linuxFxVersion": "[format('DOCKER|{0}.azurecr.io/{1}:{2}', parameters('dockerRegistryName'), parameters('dockerRegistryImageName'), parameters('dockerRegistryImageVersion'))]",
+                  "alwaysOn": false,
+                  "ftpsState": "FtpsOnly",
+                  "appCommandLine": "[parameters('appCommandLine')]",
+                  "appSettings": "[union(parameters('appSettings'), variables('dockerAppSettings'))]"
+                }
+              }
+            }
+          ],
+          "outputs": {
+            "appServiceBackendHostName": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Web/sites', parameters('name')), '2022-03-01').defaultHostName]"
+            },
+            "systemAssignedIdentityPrincipalId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Web/sites', parameters('name')), '2022-03-01', 'full').identity.principalId]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', format('acr-{0}', parameters('userAlias')))]",
+        "[resourceId('Microsoft.Resources/deployments', format('appServicePlan-{0}', parameters('userAlias')))]",
+        "[resourceId('Microsoft.Resources/deployments', 'KeyVaultModule')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('appfe-{0}', parameters('userAlias'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "name": {
+            "value": "[parameters('appServiceWebsiteFEName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "appServicePlanId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('appServicePlan-{0}', parameters('userAlias'))), '2022-09-01').outputs.id.value]"
+          },
+          "linuxFxVersion": {
+            "value": "NODE|18-lts"
+          },
+          "appCommandLine": {
+            "value": "pm2 serve /home/site/wwwroot --spa --no-daemon"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.31.92.45157",
+              "templateHash": "17586411767649866441"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "name": {
+              "type": "string"
+            },
+            "appServicePlanId": {
+              "type": "string"
+            },
+            "appSettings": {
+              "type": "array",
+              "defaultValue": []
+            },
+            "linuxFxVersion": {
+              "type": "string",
+              "defaultValue": "NODE|18-lts",
+              "allowedValues": [
+                "PYTHON|3.11",
+                "NODE|18-lts"
+              ]
+            },
+            "appCommandLine": {
+              "type": "string",
+              "defaultValue": ""
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/sites",
+              "apiVersion": "2022-03-01",
+              "name": "[parameters('name')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "serverFarmId": "[parameters('appServicePlanId')]",
+                "httpsOnly": true,
+                "siteConfig": {
+                  "linuxFxVersion": "[parameters('linuxFxVersion')]",
+                  "alwaysOn": false,
+                  "ftpsState": "FtpsOnly",
+                  "appCommandLine": "[parameters('appCommandLine')]",
+                  "appSettings": "[parameters('appSettings')]"
+                }
+              }
+            }
+          ],
+          "outputs": {
+            "appServiceAppHostName": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Web/sites', parameters('name')), '2022-03-01').defaultHostName]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', format('appServicePlan-{0}', parameters('userAlias')))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "appServiceWebsiteBEHostName": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('appbe-{0}', parameters('userAlias'))), '2022-09-01').outputs.appServiceBackendHostName.value]"
+    },
+    "appServiceWebsiteFEHostName": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('appfe-{0}', parameters('userAlias'))), '2022-09-01').outputs.appServiceAppHostName.value]"
+    }
+  }
+}

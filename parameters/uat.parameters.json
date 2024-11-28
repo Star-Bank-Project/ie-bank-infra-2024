@@ -5,11 +5,23 @@
     "environmentType": {
       "value": "uat"
     },
+    "dockerRegistryImageName": {
+      "value": "my-container-image"
+    },
     "userAlias": {
       "value": "makenna"
     },
     "containerRegistryName": {
       "value": "makennaacruat"
+    },
+    "acrAdminUsername": {
+      "value": "acrAdminUsername"
+    },
+    "acrAdminPassword0": {
+      "value": "acrAdminPassword0" 
+    },
+    "acrAdminPassword1": {
+      "value": "acrAdminPassword1" 
     },
     "keyVaultName": {
       "value": "makenna-keyvault-uat"

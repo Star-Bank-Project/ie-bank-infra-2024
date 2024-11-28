@@ -97,6 +97,7 @@ module acr './modules/acr.bicep' = {
     keyVaultSecretAdminUsername: acrAdminUsername
     keyVaultSecretAdminPassword0: acrAdminPassword0
     keyVaultSecretAdminPassword1: acrAdminPassword1
+    logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
   }
 }
 
@@ -108,6 +109,7 @@ module keyVault './modules/keyVault.bicep' = {
     location: location
     enableVaultForDeployment: true
     roleAssignments: roleAssignments
+    logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
   }
 }
 
@@ -118,6 +120,7 @@ module postgresSQLServer './modules/postgre-sql-server.bicep' = {
     name: postgreSQLServerName
     postgreSQLAdminServicePrincipalObjectId: appServiceWebsiteBE.outputs.systemAssignedIdentityPrincipalId
     postgreSQLAdminServicePrincipalName: appServiceWebsiteBEName
+    logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
   }
   dependsOn: [
     appServiceWebsiteBE
@@ -166,6 +169,7 @@ module appServiceWebsiteBE './modules/app-service-container.bicep' = {
     dockerRegistryImageName: dockerRegistryImageName
     dockerRegistryImageVersion: dockerRegistryImageVersion
     appInsightsInstrumentationKey: appInsights.outputs.instrumentationKey
+    logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
   }
   dependsOn: [
     appServicePlan
@@ -184,6 +188,7 @@ module appServiceWebsiteFE './modules/app-service-website.bicep' = {
     appServicePlanId: appServicePlan.outputs.id
     linuxFxVersion: 'NODE|18-lts'
     appCommandLine: 'pm2 serve /home/site/wwwroot --spa --no-daemon'
+    logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
   }
   dependsOn: [
     appServicePlan

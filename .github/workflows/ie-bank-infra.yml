@@ -63,7 +63,7 @@ jobs:
       - name: Deploy Application Insights and Log Analytics to Dev
         uses: azure/arm-deploy@v2
         with:
-          scope: ${{ env.RESOURCE_GROUP_DEV }}
+          scope: resourcegroup
           subscriptionId: ${{ env.SUBSCRIPTION_ID_DEV }}
           resourceGroupName: ${{ env.RESOURCE_GROUP_DEV }}
           template: ./main.bicep
@@ -97,7 +97,7 @@ jobs:
       - name: Deploy Application Insights and Log Analytics to UAT
         uses: azure/arm-deploy@v2
         with:
-          scope: ${{ env.RESOURCE_GROUP_UAT }}
+          scope: resourcegroup
           subscriptionId: ${{ env.SUBSCRIPTION_ID_DEV }}
           resourceGroupName: ${{ env.RESOURCE_GROUP_UAT }}
           template: ./main.bicep

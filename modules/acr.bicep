@@ -32,7 +32,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' =
 // 
 resource acrDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   name: 'acrDiagnostics'
-  scope: containerRegistry
+  scope: containerRegistry 
   properties: {
     logs: [
       { category: 'ContainerRegistryRepositoryEvents', enabled: true, retentionPolicy: { enabled: false, days: 0 } }

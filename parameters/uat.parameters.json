@@ -94,10 +94,10 @@
       ]
     },
     "logAnalyticsWorkspaceName": {
-      "value": "makenna-loganalytics-uat"
+      "value": "makenna-logAnalyticsWorkspace-uat"
     },
     "appInsightsName": {
-      "value": "makenna-appinsights-uat"
+      "value": "makenna-appInsights-uat"
     }
   }
 }

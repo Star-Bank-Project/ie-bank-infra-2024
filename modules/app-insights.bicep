@@ -1,22 +1,27 @@
-@description('The name of the Application Insights resource')
+@description('Location of the resource')
+param location string
+
+@description('Name of the Application Insights resource on Azure')
 param appInsightsName string
 
-@description('The Azure location where the Application Insights resource will be deployed')
-param location string = resourceGroup().location
-
-@description('The ID of the Log Analytics Workspace to integrate with Application Insights')
+@description('Azure Log Analytics Workspace ID')
 param logAnalyticsWorkspaceId string
 
-resource appInsights 'Microsoft.Insights/components@2015-05-01' = {
+resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
   name: appInsightsName
   location: location
-  kind: 'web' // Required property to specify the type of Application Insights instance
+  kind: 'web'
   properties: {
     Application_Type: 'web'
+    Flow_Type: 'Bluefield'
     WorkspaceResourceId: logAnalyticsWorkspaceId
+    RetentionInDays: 90
+    IngestionMode: 'LogAnalytics'
+    publicNetworkAccessForIngestion: 'Enabled'
+    publicNetworkAccessForQuery: 'Enabled'
   }
 }
 
-output appInsightsId string = appInsights.id
-output appInsightsInstrumentationKey string = appInsights.properties.InstrumentationKey
-output appInsightsConnectionString string = appInsights.properties.ConnectionString
+output id string = appInsights.id
+output instrumentationKey string = appInsights.properties.InstrumentationKey
+output insightsConnectionString string = appInsights.properties.ConnectionString

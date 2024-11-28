@@ -38,6 +38,40 @@ The Log Analytics Workspace collects, stores, and analyzes log and telemetry dat
 #### Application Insights
 Application Insights provides insights into the application performance, user behavior, and diagnostics of both the front and back end, which enables proactive issue detection and resolution.
 
+#### **Modularization Strategy**
+
+To streamline the deployment and management of the infrastructure, we used the following modularization strategy:
+
+- **Separation of Concerns:**  
+  Each module in the repository is designed to handle a specific aspect of the infrastructure. This ensures maintainability, reusability, and scalability.
+
+- **Main Bicep File:**  
+  The `main.bicep` file acts as the orchestration layer. It references all modules and integrates them with environment-specific configurations through JSON parameter files.
+
+- **Modules:**
+  - **App Service Container Module (`app-service-container.bicep`):**  
+    Configures the backend App Service, enabling system-assigned identity and secure integration with Key Vault and Azure Container Registry.
+  - **Backend App Service Website Module (`app-service-website.bicep`):**  
+    Configures the frontend App Service websites, enabling HTTPS-only traffic, custom domains, and integration with the App Service Plan.
+  - **PostgreSQL Module (`postgre-sql-server.bicep`):**  
+    Deploys the PostgreSQL server with AAD authentication and connects the App Service using managed identity.
+  - **Database Module (`postgre-sql-db.bicep`):**  
+    Creates the database within the PostgreSQL server, with configurations such as charset and collation.
+  - **Key Vault Module (`keyVault.bicep`):**  
+    Sets up the Key Vault for storing sensitive credentials like ACR admin credentials and database passwords.
+  - **App Service Plan Module (`app-service-plan.bicep`):**  
+    Provisions compute resources shared by backend and frontend services.
+  - **Azure Container Registry Module (`acr.bicep`):**  
+    Deploys the ACR to host containerized application images.
+
+- **Environment-Specific Configuration:**  
+  - Separate parameter files (`dev.parameters.json`, `uat.parameters.json`, and `prod.parameters.json`(coming soon)) define environment-specific configurations like resource group names, locations, and sensitive values.
+  - This supports consistency across environments while allowing flexibility.
+
+- **Automation and CI/CD:**  
+  - GitHub Actions workflows automate the deployment process for each environment, triggered by `push`, `pull_request`, or `workflow_dispatch` events.
+  - The modularized design ensures seamless integration of changes and simplifies troubleshooting.
+
 ### Environment Design
 
 - **Which environments do we need for our workloads?**
@@ -253,6 +287,12 @@ Must include for each use case
     Treat logs as event streams
 12. **Admin processes**
     Run admin/management tasks as one-off processes
+
+### Infrastructure Release Strategy
+
+Our infrastructure release strategy ensures a streamlined and automated approach to managing infrastructure deployments across environments thanks to the CI/CD approach and GitHub actions. The CI workflow is delineated in the ie-bank-infra.yml file. It ensures that the infrastructure code is validated and linted whenever changes are pushed to the repository or a pull request is created. This ensures that any syntax or structural errors in the Bicep templates are caught early in the development lifecycle. The CD workflow is delineated in the ie-bank-infra.yml file. It automates the deployment of infrastructure to different environments. We have an environment specific strategy, where the dev environment experiences frequent deployments to test and validate changes in the initial stages of development, the UAT environment is only deployed when a branch is merged to main, and the production environment is only deployed when all checks and validations are passed. 
+
+This automatched deployment approach is beneficial because it minimizes manual errors, ensures consistency across environments. 
 
 ### Documented User Stories
 

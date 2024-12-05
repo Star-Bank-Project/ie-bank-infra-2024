@@ -57,11 +57,11 @@
         },
         {
           "name": "DBUSER",
-          "value": "@Microsoft.KeyVault(SecretUri=https://makenna-keyvault-uat.vault.azure.net/secrets/DBUSER)"
+          "value": "makiwarner"
         },
         {
           "name": "DBPASS",
-          "value": "@Microsoft.KeyVault(SecretUri=https://makenna-keyvault-uat.vault.azure.net/secrets/DBPASS)"
+          "value": "Chip3548"
         },
         {
           "name": "FLASK_APP",

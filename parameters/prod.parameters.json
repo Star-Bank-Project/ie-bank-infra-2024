@@ -1,0 +1,94 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "dockerRegistryImageName": {
+        "value": "iebank-be"
+      },
+      "environmentType": {
+        "value": "prod"
+      },
+      "userAlias": {
+        "value": "makenna"
+      },
+      "containerRegistryName": {
+        "value": "makennaacrprod"
+      },
+      "acrAdminUsername": {
+        "value": "acrAdminUsername"
+      },
+      "acrAdminPassword0": {
+        "value": "acrAdminPassword0" 
+      },
+      "acrAdminPassword1": {
+        "value": "acrAdminPassword1" 
+      },
+      "keyVaultName": {
+        "value": "makenna-keyvault-prod"
+      },
+      "postgreSQLServerName": {
+        "value": "makenna-dbsrv-prod"
+      },
+      "postgreSQLDatabaseName": {
+        "value": "makenna-db-prod"
+      },
+      "appServicePlanName": {
+        "value": "makenna-asp-prod"
+      },
+      "appServiceWebsiteBEName": {
+        "value": "makenna-be-prod"
+      },
+      "appServiceWebsiteFEName": {
+        "value": "makenna-fe-prod"
+      },
+      "appServiceWebsiteBeAppSettings": {
+        "value": [
+          {
+            "name": "ENV",
+            "value": "prod"
+          },
+          {
+            "name": "DBHOST",
+            "value": "makenna-dbsrv-prod.postgres.database.azure.com"
+          },
+          {
+            "name": "DBNAME",
+            "value": "makenna-db-prod"
+          },
+          {
+            "name": "DBUSER",
+            "value": "makiwarner"
+          },
+          {
+            "name": "DBPASS",
+            "value": "Chip3548"
+          },
+          {
+            "name": "FLASK_APP",
+            "value": "app.py"
+          },
+          {
+            "name": "FLASK_DEBUG",
+            "value": "1"
+          }
+        ]
+      },
+      "location": {
+        "value": "North Europe"
+      },
+      "roleAssignments": {
+        "value": [
+          {
+            "principalId": "37841ca3-42b3-4aed-b215-44d6f5dcb57d",
+            "roleDefinitionIdOrName": "Key Vault Secrets User",
+            "principalType": "ServicePrincipal"
+          },
+          {
+            "principalId": "daa3436a-d1fb-44fe-b34b-053db433cdb7",
+            "roleDefinitionIdOrName": "Key Vault Administrator",
+            "principalType": "Group"
+          }
+        ]
+      }
+    }
+  }

@@ -9,11 +9,11 @@ param location string = resourceGroup().location
 @description('The name of the Key Vault where credentials will be stored')
 param keyVaultName string
 @secure()
-param keyVaultSecretAdminUsername string 
+param keyVaultSecretAdminUsername string
 @secure()
-param keyVaultSecretAdminPassword0 string 
+param keyVaultSecretAdminPassword0 string
 @secure()
-param keyVaultSecretAdminPassword1 string 
+param keyVaultSecretAdminPassword1 string
 
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
   name: name
@@ -80,4 +80,3 @@ resource secretAdminUserPassword1 'Microsoft.KeyVault/vaults/secrets@2023-02-01'
 
 // Output the ACR name
 output containerRegistryName string = containerRegistry.name
-

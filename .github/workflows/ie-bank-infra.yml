@@ -14,7 +14,8 @@ on:
 env:
   RESOURCE_GROUP_DEV: BCSAI2024-DEVOPS-STUDENTS-B-DEV
   RESOURCE_GROUP_UAT: BCSAI2024-DEVOPS-STUDENTS-B-UAT
-  SUBSCRIPTION_ID_DEV: e0b9cada-61bc-4b5a-bd7a-52c606726b3b
+  RESOURCE_GROUP_PROD: BCSAI2024-DEVOPS-STUDENTS-B-PROD
+  SUBSCRIPTION_ID_DEV:  e0b9cada-61bc-4b5a-bd7a-52c606726b3b
   USER_ALIAS: makenna
 
 jobs:
@@ -103,3 +104,29 @@ jobs:
           template: ./main.bicep
           parameters: ./parameters/uat.parameters.json
           deploymentName: appInsights-logAnalytics-uat
+
+  deploy-prod:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: 'Production'
+
+    steps:
+      - uses: actions/checkout@main
+      - name: Download Bicep build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: bicep-build
+
+      - uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to prod
+        uses: azure/arm-deploy@v2
+        with:
+          subscriptionId: ${{ env.SUBSCRIPTION_ID_PROD }}
+          resourceGroupName: ${{ env.RESOURCE_GROUP_PROD }}
+          template: ./main.bicep
+          parameters: ./parameters/prod.parameters.json

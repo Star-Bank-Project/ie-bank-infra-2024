@@ -2,4 +2,8 @@
 
 *.yml  @makiwarner
 
+*.bicep  @makiwarner
+
+*.json  @makiwarner
+
 docs/*  @rbeltran076

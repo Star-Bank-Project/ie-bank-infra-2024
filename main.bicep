@@ -167,9 +167,7 @@ module appServiceWebsiteBE './modules/app-service-container.bicep' = {
     dockerRegistryServerPassword: keyVaultReference.getSecret(acrPassword0SecretName)
     dockerRegistryImageName: dockerRegistryImageName
     dockerRegistryImageVersion: dockerRegistryImageVersion
-    appInsightsInstrumentationKey: appInsights.outputs.instrumentationKey
     logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
-    logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
   }
   dependsOn: [
     appServicePlan

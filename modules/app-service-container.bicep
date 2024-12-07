@@ -10,10 +10,8 @@ param dockerRegistryImageName string
 param dockerRegistryImageVersion string = 'latest'
 param appSettings array = []
 param appCommandLine string = ''
-param logAnalyticsWorkspaceName string // Name of the Log Analytics Workspace from the parameters file
 param logAnalyticsWorkspaceId string
 @description('The Application Insights Instrumentation Key for monitoring and logging.')
-param appInsightsInstrumentationKey string
 
 
 var dockerAppSettings = [
@@ -42,39 +40,18 @@ var dockerAppSettings = [
     }
   }
   
-  // Add a diagnostic setting for the App Service
   resource appServiceDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-    name: '${appServiceApp.name}-diagnostic'
+    name: 'appServiceDiagnostics'
+    scope: appServiceApp
     properties: {
       logs: [
-        {
-          category: 'AppServiceHTTPLogs'
-          enabled: true
-          retentionPolicy: {
-            enabled: false
-            days: 0
-          }
-        }
-        {
-          category: 'AppServiceConsoleLogs'
-          enabled: true
-          retentionPolicy: {
-            enabled: false
-            days: 0
-          }
-        }
+        { category: 'AppServiceHTTPLogs', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
+        { category: 'AppServiceConsoleLogs', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
       ]
       metrics: [
-        {
-          category: 'AllMetrics'
-          enabled: true
-          retentionPolicy: {
-            enabled: false
-            days: 0
-          }
-        }
+        { category: 'AllMetrics', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
       ]
-      workspaceId: logAnalyticsWorkspaceId // Link to your Log Analytics workspace
+      workspaceId: logAnalyticsWorkspaceId
     }
   }
   

@@ -28,20 +28,28 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' =
   ]
 }
 
-resource acrDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-  name: 'acrDiagnostics'
-  scope: containerRegistry
+resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: ContainerRegistryDiagnostics
+  scope: containerRegistry // Attach to the Container Registry
   properties: {
+    workspaceId: logAnalyticsWorkspaceId // Log Analytics Workspace ID
     logs: [
-      { category: 'ContainerRegistryRepositoryEvents', enabled: true }
-      { category: 'ContainerRegistryLoginEvents', enabled: true }
+      {
+        category: 'ContainerRegistryLoginEvents' // Tracks login events
+        enabled: true
+      }
+      {
+        category: 'ContainerRegistryRepositoryEvents' // Tracks repository events (push, pull, delete)
+        enabled: true
+      }
     ]
     metrics: [
-      { category: 'AllMetrics', enabled: true }
+      {
+        category: 'AllMetrics' // Tracks metrics for ACR
+        enabled: true
+      }
     ]
-    workspaceId: logAnalyticsWorkspaceId
   }
-}
 
 
 

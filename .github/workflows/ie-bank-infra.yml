@@ -63,7 +63,7 @@ jobs:
       - name: Deploy Application Insights, Log Analytics, and Workbook to Dev
         uses: azure/arm-deploy@v2
         with:
-          scope: "/subscriptions/${{ env.SUBSCRIPTION_ID_DEV }}/resourceGroups/${{ env.RESOURCE_GROUP_DEV }}"
+          scope: resourcegroup # Fixed the scope issue
           subscriptionId: ${{ env.SUBSCRIPTION_ID_DEV }}
           resourceGroupName: ${{ env.RESOURCE_GROUP_DEV }}
           template: ./main.bicep
@@ -96,7 +96,7 @@ jobs:
       - name: Deploy Application Insights, Log Analytics, and Workbook to UAT
         uses: azure/arm-deploy@v2
         with:
-          scope: "/subscriptions/${{ env.SUBSCRIPTION_ID_DEV }}/resourceGroups/${{ env.RESOURCE_GROUP_UAT }}"
+          scope: resourcegroup # Fixed the scope issue
           subscriptionId: ${{ env.SUBSCRIPTION_ID_DEV }}
           resourceGroupName: ${{ env.RESOURCE_GROUP_UAT }}
           template: ./main.bicep
@@ -129,7 +129,7 @@ jobs:
       - name: Deploy Application Insights, Log Analytics, and Workbook to Prod
         uses: azure/arm-deploy@v2
         with:
-          scope: "/subscriptions/${{ env.SUBSCRIPTION_ID_DEV }}/resourceGroups/${{ env.RESOURCE_GROUP_PROD }}"
+          scope: resourcegroup # Fixed the scope issue
           subscriptionId: ${{ env.SUBSCRIPTION_ID_DEV }}
           resourceGroupName: ${{ env.RESOURCE_GROUP_PROD }}
           template: ./main.bicep

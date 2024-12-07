@@ -8,6 +8,7 @@ param appSettings array = []
 ])
 param linuxFxVersion string = 'NODE|18-lts'
 param appCommandLine string = ''
+param logAnalyticsWorkspaceId string
 
 resource appServiceApp 'Microsoft.Web/sites@2022-03-01' = {
   name: name
@@ -22,6 +23,21 @@ resource appServiceApp 'Microsoft.Web/sites@2022-03-01' = {
       appCommandLine: appCommandLine
       appSettings: appSettings
     }
+  }
+}
+
+resource appServiceDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'appServiceDiagnostics'
+  scope: appServiceApp
+  properties: {
+    logs: [
+      { category: 'AppServiceHTTPLogs', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
+      { category: 'AppServiceConsoleLogs', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
+    ]
+    metrics: [
+      { category: 'AllMetrics', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
+    ]
+    workspaceId: logAnalyticsWorkspaceId
   }
 }
 

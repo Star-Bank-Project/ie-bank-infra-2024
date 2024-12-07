@@ -2,6 +2,7 @@ param location string = resourceGroup().location
 param name string
 param postgreSQLAdminServicePrincipalObjectId string
 param postgreSQLAdminServicePrincipalName string
+param logAnalyticsWorkspaceId string
 
 resource postgreSQLServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01' = {
   name: name
@@ -57,5 +58,22 @@ resource postgreSQLAdministrators 'Microsoft.DBforPostgreSQL/flexibleServers/adm
   ]
 }
 
+resource postgreSQLDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'postgreSQLDiagnostics'
+  scope: postgreSQLServer
+  properties: {
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+        retentionPolicy: {
+          enabled: false
+          days: 0
+        }
+      }
+    ]
+    workspaceId: logAnalyticsWorkspaceId
+  }
+}
 output id string = postgreSQLServer.id
 output fullyQualifiedDomainName string = postgreSQLServer.properties.fullyQualifiedDomainName

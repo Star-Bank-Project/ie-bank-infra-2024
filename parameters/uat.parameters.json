@@ -89,6 +89,12 @@
           "principalType": "Group"
         }
       ]
+    },
+    "logAnalyticsWorkspaceName": {
+      "value": "makenna-logAnalyticsWorkspace-uat"
+    },
+    "appInsightsName": {
+      "value": "makenna-appInsights-uat"
     }
   }
 }

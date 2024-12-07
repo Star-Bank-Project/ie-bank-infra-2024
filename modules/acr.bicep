@@ -12,6 +12,7 @@ param keyVaultSecretAdminUsername string
 param keyVaultSecretAdminPassword0 string
 @secure()
 param keyVaultSecretAdminPassword1 string
+param logAnalyticsWorkspaceId string
 
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
   name: name
@@ -26,6 +27,23 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' =
     adminCredentialsKeyVault
   ]
 }
+
+// ACR diagnostics resource
+resource acrDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'acrDiagnostics'
+  scope: containerRegistry
+  properties: {
+    logs: [
+      { category: 'ContainerRegistryRepositoryEvents', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
+      { category: 'ContainerRegistryLoginEvents', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
+    ]
+    metrics: [
+      { category: 'AllMetrics', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
+    ]
+    workspaceId: logAnalyticsWorkspaceId
+  }
+}
+
 
 // Define the Key Vault as a direct resource
 resource adminCredentialsKeyVault 'Microsoft.KeyVault/vaults@2021-10-01' existing = {

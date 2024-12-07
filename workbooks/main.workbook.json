@@ -1,97 +1,57 @@
 {
-    "version": "Notebook/1.0",
-    "items": [
-      {
-        "type": 1,
-        "content": {
-          "json": "## Star Bank workbook:\n---\nIn here you can track all of our SLOs"
-        },
-        "name": "text - 2"
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "workbookDisplayName": {
+        "type": "string",
+        "defaultValue": "star_workbook",
+        "metadata": {
+          "description": "The friendly name for the workbook that is used in the Gallery or Saved List.  This name must be unique within a resource group."
+        }
       },
-      {
-        "type": 3,
-        "content": {
-          "version": "KqlItem/1.0",
-          "query": "AppDependencies\n| where TimeGenerated > ago(1h)  // Adjust time range as needed\n| summarize TotalRequests = count(), SuccessfulRequests = countif(Success == true), FailedRequests = countif(Success == false)\n| extend SuccessRate = (SuccessfulRequests * 100.0) / TotalRequests\n| mv-expand Requests = pack_array(\n    pack(\"Category\", \"Successful Requests\", \"Count\", SuccessfulRequests),\n    pack(\"Category\", \"Failed Requests\", \"Count\", FailedRequests)\n)\n| project Category = tostring(Requests.Category), Count = toint(Requests.Count)\n\n",
-          "size": 1,
-          "timeContext": {
-            "durationMs": 86400000
-          },
-          "queryType": 0,
-          "resourceType": "microsoft.operationalinsights/workspaces",
-          "visualization": "piechart"
-        },
-        "name": "query - 2"
+      "workbookType": {
+        "type": "string",
+        "defaultValue": "workbook",
+        "metadata": {
+          "description": "The gallery that the workbook will been shown under. Supported values include workbook, tsg, etc. Usually, this is 'workbook'"
+        }
       },
-      {
-        "type": 3,
-        "content": {
-          "version": "KqlItem/1.0",
-          "query": "AppDependencies\r\n| where TimeGenerated > startofday(ago(30d))  // Monthly time period\r\n| where Name has \"Transaction\"  // Adjust based on the specific dependency name\r\n| summarize TotalTransactions = count(), FastTransactions = countif(DurationMs <= 2000), SlowTransactions = countif(DurationMs > 2000)\r\n| mv-expand Transactions = pack_array(\r\n    pack(\"Category\", \"Fast Transactions (<=2s)\", \"Count\", FastTransactions),\r\n    pack(\"Category\", \"Slow Transactions (>2s)\", \"Count\", SlowTransactions)\r\n)\r\n| project Category = tostring(Transactions.Category), Count = toint(Transactions.Count)\r\n\r\n\r\n\r\n",
-          "size": 1,
-          "timeContext": {
-            "durationMs": 86400000
-          },
-          "queryType": 0,
-          "resourceType": "microsoft.operationalinsights/workspaces",
-          "visualization": "piechart",
-          "graphSettings": {
-            "type": 0
-          }
-        },
-        "name": "query - 2"
+      "workbookSourceId": {
+        "type": "string",
+        "defaultValue": "/subscriptions/e0b9cada-61bc-4b5a-bd7a-52c606726b3b/resourceGroups/BCSAI2024-DEVOPS-STUDENTS-B-DEV/providers/Microsoft.OperationalInsights/workspaces/makenna-logAnalyticsWorkspace-dev",
+        "metadata": {
+          "description": "The id of resource instance to which the workbook will be associated"
+        }
       },
+      "workbookId": {
+        "type": "string",
+        "defaultValue": "[newGuid()]",
+        "metadata": {
+          "description": "The unique guid for this workbook instance"
+        }
+      }
+    },
+    "resources": [
       {
-        "type": 3,
-        "content": {
-          "version": "KqlItem/1.0",
-          "query": "AppDependencies\r\n| where TimeGenerated > startofday(ago(30d))  // Monthly time period\r\n| where Name contains \"Login\"  // Adjust based on the specific dependency name\r\n| summarize SuccessfulLogins = countif(Success == true), FailedLogins = countif(Success == false) by bin(TimeGenerated, 1d)  // Group by daily intervals\r\n| mv-expand LoginType = pack_array(\r\n    pack(\"Category\", \"SuccessfulLogins\", \"Count\", SuccessfulLogins),\r\n    pack(\"Category\", \"FailedLogins\", \"Count\", FailedLogins)\r\n)\r\n| project TimeGenerated, Category = tostring(LoginType.Category), Count = toint(LoginType.Count)\r\n| order by TimeGenerated asc\r\n\r\n\r\n\r\n",
-          "size": 0,
-          "timeContext": {
-            "durationMs": 86400000
-          },
-          "queryType": 0,
-          "resourceType": "microsoft.operationalinsights/workspaces",
-          "visualization": "barchart"
-        },
-        "name": "query - 3"
-      },
-      {
-        "type": 3,
-        "content": {
-          "version": "KqlItem/1.0",
-          "query": "AppDependencies\r\n| where TimeGenerated > startofday(ago(30d))  // Monthly time period\r\n| where Name contains \"FundTransfer\"  // Adjust based on the specific dependency name\r\n| summarize TotalTransfers = count(), AccurateTransfers = countif(Success == true) by bin(TimeGenerated, 1d)  \r\n| project TimeGenerated, TotalTransfers, AccurateTransfers\r\n| order by TimeGenerated asc\r\n\r\n",
-          "size": 0,
-          "timeContext": {
-            "durationMs": 86400000
-          },
-          "queryType": 0,
-          "resourceType": "microsoft.operationalinsights/workspaces",
-          "visualization": "unstackedbar",
-          "graphSettings": {
-            "type": 0
-          }
-        },
-        "name": "query - 4"
-      },
-      {
-        "type": 3,
-        "content": {
-          "version": "KqlItem/1.0",
-          "query": "AppServiceHTTPLogs\r\n| summarize TotalRequests = count(), SuccessfulRequests = countif(ScStatus == 200)\r\n| extend AvailabilityPercentage = 100.0 * SuccessfulRequests / TotalRequests\r\n",
-          "size": 0,
-          "timeContext": {
-            "durationMs": 86400000
-          },
-          "queryType": 0,
-          "resourceType": "microsoft.operationalinsights/workspaces",
-          "visualization": "unstackedbar"
-        },
-        "name": "query - 5"
+        "name": "[parameters('workbookId')]",
+        "type": "microsoft.insights/workbooks",
+        "location": "[resourceGroup().location]",
+        "apiVersion": "2022-04-01",
+        "dependsOn": [],
+        "kind": "shared",
+        "properties": {
+          "displayName": "[parameters('workbookDisplayName')]",
+          "serializedData": "{\"version\":\"Notebook/1.0\",\"items\":[{\"type\":1,\"content\":{\"json\":\"## Star Bank workbook:\\n---\\nIn here you can track all of our SLOs\"},\"name\":\"text - 2\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"AppDependencies\\n| where TimeGenerated > ago(1h)  // Adjust time range as needed\\n| summarize TotalRequests = count(), SuccessfulRequests = countif(Success == true), FailedRequests = countif(Success == false)\\n| extend SuccessRate = (SuccessfulRequests * 100.0) / TotalRequests\\n| mv-expand Requests = pack_array(\\n    pack(\\\"Category\\\", \\\"Successful Requests\\\", \\\"Count\\\", SuccessfulRequests),\\n    pack(\\\"Category\\\", \\\"Failed Requests\\\", \\\"Count\\\", FailedRequests)\\n)\\n| project Category = tostring(Requests.Category), Count = toint(Requests.Count)\\n\\n\",\"size\":1,\"timeContext\":{\"durationMs\":86400000},\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\",\"visualization\":\"piechart\"},\"name\":\"query - 2\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"AppDependencies\\r\\n| where TimeGenerated > startofday(ago(30d))  // Monthly time period\\r\\n| where Name has \\\"Transaction\\\"  // Adjust based on the specific dependency name\\r\\n| summarize TotalTransactions = count(), FastTransactions = countif(DurationMs <= 2000), SlowTransactions = countif(DurationMs > 2000)\\r\\n| mv-expand Transactions = pack_array(\\r\\n    pack(\\\"Category\\\", \\\"Fast Transactions (<=2s)\\\", \\\"Count\\\", FastTransactions),\\r\\n    pack(\\\"Category\\\", \\\"Slow Transactions (>2s)\\\", \\\"Count\\\", SlowTransactions)\\r\\n)\\r\\n| project Category = tostring(Transactions.Category), Count = toint(Transactions.Count)\\r\\n\\r\\n\\r\\n\\r\\n\",\"size\":1,\"timeContext\":{\"durationMs\":86400000},\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\",\"visualization\":\"piechart\",\"graphSettings\":{\"type\":0}},\"name\":\"query - 2\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"AppDependencies\\r\\n| where TimeGenerated > startofday(ago(30d))  // Monthly time period\\r\\n| where Name contains \\\"Login\\\"  // Adjust based on the specific dependency name\\r\\n| summarize SuccessfulLogins = countif(Success == true), FailedLogins = countif(Success == false) by bin(TimeGenerated, 1d)  // Group by daily intervals\\r\\n| mv-expand LoginType = pack_array(\\r\\n    pack(\\\"Category\\\", \\\"SuccessfulLogins\\\", \\\"Count\\\", SuccessfulLogins),\\r\\n    pack(\\\"Category\\\", \\\"FailedLogins\\\", \\\"Count\\\", FailedLogins)\\r\\n)\\r\\n| project TimeGenerated, Category = tostring(LoginType.Category), Count = toint(LoginType.Count)\\r\\n| order by TimeGenerated asc\\r\\n\\r\\n\\r\\n\\r\\n\",\"size\":0,\"timeContext\":{\"durationMs\":86400000},\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\",\"visualization\":\"barchart\"},\"name\":\"query - 3\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"AppDependencies\\r\\n| where TimeGenerated > startofday(ago(30d))  // Monthly time period\\r\\n| where Name contains \\\"FundTransfer\\\"  // Adjust based on the specific dependency name\\r\\n| summarize TotalTransfers = count(), AccurateTransfers = countif(Success == true) by bin(TimeGenerated, 1d)  \\r\\n| project TimeGenerated, TotalTransfers, AccurateTransfers\\r\\n| order by TimeGenerated asc\\r\\n\\r\\n\",\"size\":0,\"timeContext\":{\"durationMs\":86400000},\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\",\"visualization\":\"unstackedbar\",\"graphSettings\":{\"type\":0}},\"name\":\"query - 4\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"AppServiceHTTPLogs\\r\\n| summarize TotalRequests = count(), SuccessfulRequests = countif(ScStatus == 200)\\r\\n| extend AvailabilityPercentage = 100.0 * SuccessfulRequests / TotalRequests\\r\\n\",\"size\":0,\"timeContext\":{\"durationMs\":86400000},\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\",\"visualization\":\"unstackedbar\"},\"name\":\"query - 5\"}],\"isLocked\":false,\"fallbackResourceIds\":[\"/subscriptions/e0b9cada-61bc-4b5a-bd7a-52c606726b3b/resourceGroups/BCSAI2024-DEVOPS-STUDENTS-B-DEV/providers/Microsoft.OperationalInsights/workspaces/makenna-logAnalyticsWorkspace-dev\"]}",
+          "version": "1.0",
+          "sourceId": "[parameters('workbookSourceId')]",
+          "category": "[parameters('workbookType')]"
+        }
       }
     ],
-    "fallbackResourceIds": [
-      "/subscriptions/e0b9cada-61bc-4b5a-bd7a-52c606726b3b/resourceGroups/BCSAI2024-DEVOPS-STUDENTS-B-DEV/providers/Microsoft.OperationalInsights/workspaces/makenna-logAnalyticsWorkspace-dev"
-    ],
-    "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+    "outputs": {
+      "workbookId": {
+        "type": "string",
+        "value": "[resourceId( 'microsoft.insights/workbooks', parameters('workbookId'))]"
+      }
+    },
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#"
   }

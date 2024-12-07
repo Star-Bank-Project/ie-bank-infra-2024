@@ -31,11 +31,11 @@ resource appServiceDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01
   scope: appServiceApp
   properties: {
     logs: [
-      { category: 'AppServiceHTTPLogs', enabled: true, retentionPolicy: { enabled: true, days: 30 }  }
-      { category: 'AppServiceConsoleLogs', enabled: true, retentionPolicy: { enabled: true, days: 30 }  }
+      { category: 'AppServiceHTTPLogs', enabled: true }
+      { category: 'AppServiceConsoleLogs', enabled: true }
     ]
     metrics: [
-      { category: 'AllMetrics', enabled: true, retentionPolicy: { enabled: true, days: 30 }  }
+      { category: 'AllMetrics', enabled: true }
     ]
     workspaceId: logAnalyticsWorkspaceId
   }

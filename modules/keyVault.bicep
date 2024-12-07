@@ -52,10 +52,10 @@ resource keyVaultDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-p
   scope: keyVault
   properties: {
     logs: [
-      { category: 'AuditEvent', enabled: true, retentionPolicy: { enabled: true, days: 30 }  }
+      { category: 'AuditEvent', enabled: true }
     ]
     metrics: [
-      { category: 'AllMetrics', enabled: true, retentionPolicy: { enabled: true, days: 30 }  }
+      { category: 'AllMetrics', enabled: true }
     ]
     workspaceId: logAnalyticsWorkspaceId
   }

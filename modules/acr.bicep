@@ -28,21 +28,21 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' =
   ]
 }
 
-// ACR diagnostics resource
 resource acrDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   name: 'acrDiagnostics'
   scope: containerRegistry
   properties: {
     logs: [
-      { category: 'ContainerRegistryRepositoryEvents', enabled: true, retentionPolicy: { enabled: true, days: 30 }  }
-      { category: 'ContainerRegistryLoginEvents', enabled: true, retentionPolicy: { enabled: true, days: 30 } }
+      { category: 'ContainerRegistryRepositoryEvents', enabled: true }
+      { category: 'ContainerRegistryLoginEvents', enabled: true }
     ]
     metrics: [
-      { category: 'AllMetrics', enabled: true, retentionPolicy: { enabled: true, days: 30 } }
+      { category: 'AllMetrics', enabled: true }
     ]
     workspaceId: logAnalyticsWorkspaceId
   }
 }
+
 
 
 // Define the Key Vault as a direct resource

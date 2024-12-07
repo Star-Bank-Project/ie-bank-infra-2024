@@ -45,15 +45,15 @@ var dockerAppSettings = [
     scope: appServiceApp
     properties: {
       logs: [
-        { category: 'AppServiceHTTPLogs', enabled: true, retentionPolicy: { enabled: true, days: 30 }   }
-        { category: 'AppServiceConsoleLogs', enabled: true, retentionPolicy: { enabled: true, days: 30 }      }
+        { category: 'AppServiceHTTPLogs', enabled: true }
+        { category: 'AppServiceConsoleLogs', enabled: true }
       ]
       metrics: [
-        { category: 'AllMetrics', enabled: true, retentionPolicy: { enabled: true, days: 30 } }
+        { category: 'AllMetrics', enabled: true }
       ]
       workspaceId: logAnalyticsWorkspaceId
     }
-  }
+  }  
   
 
 output appServiceBackendHostName string = appServiceApp.properties.defaultHostName

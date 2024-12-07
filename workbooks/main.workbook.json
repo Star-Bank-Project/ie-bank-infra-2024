@@ -1,119 +1,97 @@
 {
     "version": "Notebook/1.0",
     "items": [
-        {
-            "type": 1,
-            "content": {
-                "json": "## StarBank Monitoring Strategy Overview\n\nThis workbook provides a comprehensive overview of our monitoring strategy for the StarBank web application, focusing on Service Level Agreements (SLAs), Service Level Objectives (SLOs), and Service Level Indicators (SLIs). \n\n- **SLA**: We guarantee 99.95% uptime and high performance, ensuring reliable service with minimal disruptions.\n- **SLO**: Targets include:\n  - 90% of API requests processed under 500ms.\n  - Page load times under 2 seconds.\n  - Error rates below 1%.\n- **SLI**: Actively monitor:\n  - API response time.\n  - Error rates.\n  - Uptime using Application Insights and Log Analytics Workspace.\n\nThis workbook ensures operational resilience and reliability for StarBank services."
-            },
-            "name": "text - Overview"
+      {
+        "type": 1,
+        "content": {
+          "json": "## Star Bank workbook:\n---\nIn here you can track all of our SLOs"
         },
-        {
-            "type": 3,
-            "content": {
-                "version": "KqlItem/1.0",
-                "query": "requests\n| summarize Count = count(), FailedRequests = countif(success == false), SuccessPercentage = (countif(success == true) * 100.0 / count())\n| project Count, FailedRequests, SuccessPercentage",
-                "size": 0,
-                "timeContext": {
-                    "durationMs": 86400000
-                },
-                "queryType": 0,
-                "resourceType": "microsoft.insights/components",
-                "visualization": "table"
-            },
-            "name": "query - Success Percentage"
+        "name": "text - 2"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "AppDependencies\n| where TimeGenerated > ago(1h)  // Adjust time range as needed\n| summarize TotalRequests = count(), SuccessfulRequests = countif(Success == true), FailedRequests = countif(Success == false)\n| extend SuccessRate = (SuccessfulRequests * 100.0) / TotalRequests\n| mv-expand Requests = pack_array(\n    pack(\"Category\", \"Successful Requests\", \"Count\", SuccessfulRequests),\n    pack(\"Category\", \"Failed Requests\", \"Count\", FailedRequests)\n)\n| project Category = tostring(Requests.Category), Count = toint(Requests.Count)\n\n",
+          "size": 1,
+          "timeContext": {
+            "durationMs": 86400000
+          },
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces",
+          "visualization": "piechart"
         },
-        {
-            "type": 1,
-            "content": {
-                "json": "## API Response Time (SLO - 90% under 500ms)"
-            },
-            "name": "text - API Response Time"
+        "name": "query - 2"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "AppDependencies\r\n| where TimeGenerated > startofday(ago(30d))  // Monthly time period\r\n| where Name has \"Transaction\"  // Adjust based on the specific dependency name\r\n| summarize TotalTransactions = count(), FastTransactions = countif(DurationMs <= 2000), SlowTransactions = countif(DurationMs > 2000)\r\n| mv-expand Transactions = pack_array(\r\n    pack(\"Category\", \"Fast Transactions (<=2s)\", \"Count\", FastTransactions),\r\n    pack(\"Category\", \"Slow Transactions (>2s)\", \"Count\", SlowTransactions)\r\n)\r\n| project Category = tostring(Transactions.Category), Count = toint(Transactions.Count)\r\n\r\n\r\n\r\n",
+          "size": 1,
+          "timeContext": {
+            "durationMs": 86400000
+          },
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces",
+          "visualization": "piechart",
+          "graphSettings": {
+            "type": 0
+          }
         },
-        {
-            "type": 3,
-            "content": {
-                "version": "KqlItem/1.0",
-                "query": "requests\n| where success == true\n| summarize AverageResponseTime = avg(duration), P90ResponseTime = percentile(duration, 90), P95ResponseTime = percentile(duration, 95)\n| extend SLOThreshold = 500\n| project AverageResponseTime, P90ResponseTime, P95ResponseTime, SLOThreshold",
-                "size": 0,
-                "timeContext": {
-                    "durationMs": 86400000
-                },
-                "queryType": 0,
-                "resourceType": "microsoft.insights/components",
-                "visualization": "table"
-            },
-            "name": "query - API Response Time"
+        "name": "query - 2"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "AppDependencies\r\n| where TimeGenerated > startofday(ago(30d))  // Monthly time period\r\n| where Name contains \"Login\"  // Adjust based on the specific dependency name\r\n| summarize SuccessfulLogins = countif(Success == true), FailedLogins = countif(Success == false) by bin(TimeGenerated, 1d)  // Group by daily intervals\r\n| mv-expand LoginType = pack_array(\r\n    pack(\"Category\", \"SuccessfulLogins\", \"Count\", SuccessfulLogins),\r\n    pack(\"Category\", \"FailedLogins\", \"Count\", FailedLogins)\r\n)\r\n| project TimeGenerated, Category = tostring(LoginType.Category), Count = toint(LoginType.Count)\r\n| order by TimeGenerated asc\r\n\r\n\r\n\r\n",
+          "size": 0,
+          "timeContext": {
+            "durationMs": 86400000
+          },
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces",
+          "visualization": "barchart"
         },
-        {
-            "type": 1,
-            "content": {
-                "json": "## Page Load Times (SLO - Under 2 Seconds)"
-            },
-            "name": "text - Page Load Times"
+        "name": "query - 3"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "AppDependencies\r\n| where TimeGenerated > startofday(ago(30d))  // Monthly time period\r\n| where Name contains \"FundTransfer\"  // Adjust based on the specific dependency name\r\n| summarize TotalTransfers = count(), AccurateTransfers = countif(Success == true) by bin(TimeGenerated, 1d)  \r\n| project TimeGenerated, TotalTransfers, AccurateTransfers\r\n| order by TimeGenerated asc\r\n\r\n",
+          "size": 0,
+          "timeContext": {
+            "durationMs": 86400000
+          },
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces",
+          "visualization": "unstackedbar",
+          "graphSettings": {
+            "type": 0
+          }
         },
-        {
-            "type": 3,
-            "content": {
-                "version": "KqlItem/1.0",
-                "query": "browserTimings\n| summarize AveragePageLoadTime = avg(totalDuration), P90PageLoadTime = percentile(totalDuration, 90), P95PageLoadTime = percentile(totalDuration, 95)\n| extend SLOThreshold = 2000\n| project AveragePageLoadTime, P90PageLoadTime, P95PageLoadTime, SLOThreshold",
-                "size": 0,
-                "timeContext": {
-                    "durationMs": 86400000
-                },
-                "queryType": 0,
-                "resourceType": "microsoft.insights/components",
-                "visualization": "table"
-            },
-            "name": "query - Page Load Times"
+        "name": "query - 4"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "AppServiceHTTPLogs\r\n| summarize TotalRequests = count(), SuccessfulRequests = countif(ScStatus == 200)\r\n| extend AvailabilityPercentage = 100.0 * SuccessfulRequests / TotalRequests\r\n",
+          "size": 0,
+          "timeContext": {
+            "durationMs": 86400000
+          },
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces",
+          "visualization": "unstackedbar"
         },
-        {
-            "type": 1,
-            "content": {
-                "json": "## Uptime Monitoring (SLA - Uptime > 99.95%)"
-            },
-            "name": "text - Uptime Monitoring"
-        },
-        {
-            "type": 3,
-            "content": {
-                "version": "KqlItem/1.0",
-                "query": "union requests, availabilityResults\n| summarize TotalRequests = count(), SuccessfulRequests = countif(success == true)\n| extend UptimePercentage = (SuccessfulRequests * 100.0) / TotalRequests\n| extend SLAThreshold = 99.95\n| project UptimePercentage, SLAThreshold",
-                "size": 0,
-                "timeContext": {
-                    "durationMs": 86400000
-                },
-                "queryType": 0,
-                "resourceType": "microsoft.insights/components",
-                "visualization": "table"
-            },
-            "name": "query - Uptime Monitoring"
-        },
-        {
-            "type": 1,
-            "content": {
-                "json": "## Error Rate Monitoring (SLI)"
-            },
-            "name": "text - Error Rate Monitoring"
-        },
-        {
-            "type": 3,
-            "content": {
-                "version": "KqlItem/1.0",
-                "query": "requests\n| summarize TotalRequests = count(), FailedRequests = countif(success == false)\n| extend ErrorRate = (todouble(FailedRequests) / todouble(TotalRequests)) * 100\n| project ErrorRate",
-                "size": 0,
-                "timeContext": {
-                    "durationMs": 86400000
-                },
-                "queryType": 0,
-                "resourceType": "microsoft.insights/components",
-                "visualization": "table"
-            },
-            "name": "query - Error Rate Monitoring"
-        }
+        "name": "query - 5"
+      }
     ],
     "fallbackResourceIds": [
-        "/subscriptions/e0b9cada-61bc-4b5a-bd7a-52c606726b3b/resourceGroups/BCSAI2024-DEVOPS-STUDENTS-B-DEV/providers/Microsoft.Insights/components/makenna-appInsights-dev"
+      "/subscriptions/e0b9cada-61bc-4b5a-bd7a-52c606726b3b/resourceGroups/BCSAI2024-DEVOPS-STUDENTS-B-DEV/providers/Microsoft.OperationalInsights/workspaces/makenna-logAnalyticsWorkspace-dev"
     ],
     "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
   }

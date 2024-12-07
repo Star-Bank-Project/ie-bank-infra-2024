@@ -1,18 +1,19 @@
 @description('The name of the Azure Container Registry')
 param name string
 
+param logAnalyticsWorkspaceId string
+
 @description('The location of the Azure Container Registry')
 param location string = resourceGroup().location
 
 @description('The name of the Key Vault where credentials will be stored')
 param keyVaultName string
 @secure()
-param keyVaultSecretAdminUsername string
+param keyVaultSecretAdminUsername string 
 @secure()
-param keyVaultSecretAdminPassword0 string
+param keyVaultSecretAdminPassword0 string 
 @secure()
-param keyVaultSecretAdminPassword1 string
-param logAnalyticsWorkspaceId string
+param keyVaultSecretAdminPassword1 string 
 
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
   name: name
@@ -28,30 +29,21 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' =
   ]
 }
 
-resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-  name: ContainerRegistryDiagnostics
-  scope: containerRegistry // Attach to the Container Registry
+// 
+resource acrDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'acrDiagnostics'
+  scope: containerRegistry 
   properties: {
-    workspaceId: logAnalyticsWorkspaceId // Log Analytics Workspace ID
     logs: [
-      {
-        category: 'ContainerRegistryLoginEvents' // Tracks login events
-        enabled: true
-      }
-      {
-        category: 'ContainerRegistryRepositoryEvents' // Tracks repository events (push, pull, delete)
-        enabled: true
-      }
+      { category: 'ContainerRegistryRepositoryEvents', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
+      { category: 'ContainerRegistryLoginEvents', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
     ]
     metrics: [
-      {
-        category: 'AllMetrics' // Tracks metrics for ACR
-        enabled: true
-      }
+      { category: 'AllMetrics', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
     ]
+    workspaceId: logAnalyticsWorkspaceId
   }
-
-
+}
 
 // Define the Key Vault as a direct resource
 resource adminCredentialsKeyVault 'Microsoft.KeyVault/vaults@2021-10-01' existing = {
@@ -88,3 +80,4 @@ resource secretAdminUserPassword1 'Microsoft.KeyVault/vaults/secrets@2023-02-01'
 
 // Output the ACR name
 output containerRegistryName string = containerRegistry.name
+

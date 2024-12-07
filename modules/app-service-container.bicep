@@ -45,11 +45,11 @@ var dockerAppSettings = [
     scope: appServiceApp
     properties: {
       logs: [
-        { category: 'AppServiceHTTPLogs', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
-        { category: 'AppServiceConsoleLogs', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
+        { category: 'AppServiceHTTPLogs', enabled: true, retentionPolicy: { enabled: true, days: 30 }   }
+        { category: 'AppServiceConsoleLogs', enabled: true, retentionPolicy: { enabled: true, days: 30 }      }
       ]
       metrics: [
-        { category: 'AllMetrics', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
+        { category: 'AllMetrics', enabled: true, retentionPolicy: { enabled: true, days: 30 } }
       ]
       workspaceId: logAnalyticsWorkspaceId
     }

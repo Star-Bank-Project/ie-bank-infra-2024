@@ -66,10 +66,7 @@ resource postgreSQLDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01
       {
         category: 'AllMetrics'
         enabled: true
-        retentionPolicy: {
-          enabled: false
-          days: 0
-        }
+        retentionPolicy: { enabled: true, days: 30 } 
       }
     ]
     workspaceId: logAnalyticsWorkspaceId

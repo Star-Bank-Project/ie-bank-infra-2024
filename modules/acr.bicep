@@ -34,11 +34,11 @@ resource acrDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-previe
   scope: containerRegistry
   properties: {
     logs: [
-      { category: 'ContainerRegistryRepositoryEvents', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
-      { category: 'ContainerRegistryLoginEvents', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
+      { category: 'ContainerRegistryRepositoryEvents', enabled: true, retentionPolicy: { enabled: true, days: 30 }  }
+      { category: 'ContainerRegistryLoginEvents', enabled: true, retentionPolicy: { enabled: true, days: 30 } }
     ]
     metrics: [
-      { category: 'AllMetrics', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
+      { category: 'AllMetrics', enabled: true, retentionPolicy: { enabled: true, days: 30 } }
     ]
     workspaceId: logAnalyticsWorkspaceId
   }

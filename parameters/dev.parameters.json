@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "dockerRegistryImageName": {
-      "value": "my-container-image"
+      "value": "iebank-be"
     },
     "environmentType": {
       "value": "nonprod"
@@ -57,11 +57,11 @@
         },
         {
           "name": "DBUSER",
-          "value": "@Microsoft.KeyVault(SecretUri=https://makenna-keyvault-dev.vault.azure.net/secrets/DBUSER)"
+          "value": "makiwarner"
         },
         {
           "name": "DBPASS",
-          "value": "@Microsoft.KeyVault(SecretUri=https://makenna-keyvault-dev.vault.azure.net/secrets/DBPASS)"
+          "value": "Chip3548"
         },
         {
           "name": "FLASK_APP",

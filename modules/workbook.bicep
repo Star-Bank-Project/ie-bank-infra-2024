@@ -14,7 +14,7 @@ resource workbook 'Microsoft.Insights/workbooks@2022-04-01' = {
   properties: {
     category: 'workbook'
     displayName: displayName
-    serializedData: loadTextContent('../workbooks/main.workbook.json') 
+    serializedData: loadTextContent('../workbooks/main.workbook') 
     sourceId: sourceId
   }
 }

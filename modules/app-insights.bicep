@@ -14,14 +14,15 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
   properties: {
     Application_Type: 'web'
     Flow_Type: 'Bluefield'
-    WorkspaceResourceId: logAnalyticsWorkspaceId
-    RetentionInDays: 90
-    IngestionMode: 'LogAnalytics'
-    publicNetworkAccessForIngestion: 'Enabled'
-    publicNetworkAccessForQuery: 'Enabled'
+    WorkspaceResourceId: logAnalyticsWorkspaceId  // Links Application Insights to Log Analytics Workspace
+    RetentionInDays: 90  
+    IngestionMode: 'LogAnalytics'  // Ensures logs are sent to Log Analytics
+    publicNetworkAccessForIngestion: 'Enabled'  
+    publicNetworkAccessForQuery: 'Enabled'  // Allows querying via public endpoint
   }
 }
 
+// Outputs to integrate with other modules or validate deployment
 output id string = appInsights.id
 output instrumentationKey string = appInsights.properties.InstrumentationKey
 output insightsConnectionString string = appInsights.properties.ConnectionString

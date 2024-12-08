@@ -248,7 +248,9 @@ The strategy also incorporates Test-Driven Development (TDD) principles to valid
 #### Git feature branch strategy
 - The startegy adopted for both Backend and Frontend focused on the implementation of short-lived feauture branches derived from the main branch. This helped managing updates to the code and better understanding and debugging of code due to its modular nature, as each feature, user story or task was done on seperate branches. After checking that the workflow actions fully deploy and work, a pull request is made, where two reviewers are called to give their approval for the merging to the main branch.
 - Examples:
+  
       - backend had branches called containerization, one called backendci (here the implementation of backed CI/CD was implemented), ayacibe (where another approach to CI/CD was implemnted) and prodcicd (where the variables and parameters to integrate and deploy the backend in the Production resource group)
+  
       - frontend had two branches for the CI/CD with two different approaches (ayacife and ciayafe), and three branches where errors were fixed called ayanew, fixingfe and null-cookie-fix. And one last one called prod where the yml file was changed to integrate and deploy in the production environment.
 
 #### Frontend
@@ -275,6 +277,7 @@ Fixed Issues:
   - Adjusted vue.config.js for compatibility with development and UAT builds
 
 **CD Description**
+
 After the CI were building jobs are executed to build in the correct environment, an artifact is then uploaded and deployed in the respective Azure environments, this execution follows the following steps:
 
 1. Artifact Download:
@@ -294,6 +297,7 @@ Fixed Issues:
 #### Backend
 
 **CI Description**
+
 As specified in ie-bank-backend.yml, the Flask based API is automated tested at this point. The key steps include:
 
 1. Environment Setup:
@@ -302,11 +306,10 @@ Using pip install all python dependencies which are defined in the requirements.
 2. Static Analysis:
 flake8 is implemnetd to enforce Python coding standards and catching potential bugs or syntax issues early.
 
-3. Unit Testing:
-  - Unit and Functional Testing: Executes pytest for unit and functional tests to validate core API functionality, using a PostgreSQL test database defined in the workflow.
+3. Unit and Functional Testing:
+Executes pytest for unit and functional tests to validate core API functionality, using a PostgreSQL test database defined in the workflow.
 
-Coverage Reports:
-
+4. Coverage Reports:
 after testing the coverage reports are then geneated and uploaded using pytest-cov, ensuring all critical code paths are tested.
 
 Fixed Issues:

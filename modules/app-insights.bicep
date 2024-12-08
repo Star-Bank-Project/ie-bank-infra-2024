@@ -54,10 +54,6 @@ resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-pr
     workspaceId: logAnalyticsWorkspaceId
     logs: [
       {
-        category: 'Requests'
-        enabled: true
-      }
-      {
         category: 'PageViews'
         enabled: true
       }

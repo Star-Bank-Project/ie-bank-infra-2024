@@ -98,6 +98,9 @@
     },
     "logicAppName": {
       "value": "StarBankLogicApp"
+    },
+    "slackWebhookUrl": {
+      "value": "https://hooks.slack.com/services/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"
     }
   }
 }

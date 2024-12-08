@@ -16,8 +16,6 @@ param enableVaultForDeployment bool = false
 @description('The ID of the Log Analytics Workspace for monitoring')
 param logAnalyticsWorkspaceId string
 
-@description('The name of the Logic App associated with alerts')
-param logicAppName string
 
 var builtInRoleNames = {
   'Key Vault Secrets User': subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6')

@@ -7,7 +7,7 @@ on:
       - main
   push:
     branches:
-      - '*'
+      - '*' # Trigger on any branch push
     paths-ignore:
       - 'scripts/**'
 
@@ -37,7 +37,6 @@ jobs:
           path: ./main.bicep
 
   deploy-dev:
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     needs: build
     environment:
@@ -70,9 +69,8 @@ jobs:
           deploymentName: ${{ env.USER_ALIAS }}-dev
 
   deploy-uat:
-    if: github.event.pull_request.base.ref == 'main' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, deploy-dev]
     environment:
       name: 'UAT'
 
@@ -103,9 +101,8 @@ jobs:
           deploymentName: ${{ env.USER_ALIAS }}-uat
 
   deploy-prod:
-    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, deploy-dev, deploy-uat]
     environment:
       name: 'Production'
 

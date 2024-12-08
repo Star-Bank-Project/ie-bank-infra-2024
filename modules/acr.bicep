@@ -15,6 +15,7 @@ param keyVaultSecretAdminPassword0 string
 @secure()
 param keyVaultSecretAdminPassword1 string 
 
+
 @description('Diagnostic settings name for the Container Registry')
 param containerRegistryDiagnosticsName string = 'acrDiagnostics'
 

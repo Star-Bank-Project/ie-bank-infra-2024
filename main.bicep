@@ -62,6 +62,8 @@ param appInsightsName string
 
 param logicAppName string
 
+param slackWebhookUrl string
+
 /* Variables for Key Vault Secrets */
 var acrUsernameSecretName = 'acrAdminUsername'
 var acrPassword0SecretName = 'acrAdminPassword0'
@@ -70,7 +72,6 @@ var acrPassword0SecretName = 'acrAdminPassword0'
 module logAnalytics './modules/log-analytics.bicep' = {
   name: 'logAnalytics-${userAlias}'
   params: {
-    logicAppName: logicAppName
     location: location
     name: logAnalyticsWorkspaceName
   }
@@ -83,6 +84,7 @@ module appInsights './modules/app-insights.bicep' = {
     location: location
     appInsightsName: appInsightsName
     logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
+    slackWebhookUrl: slackWebhookUrl
     logicAppName: logicAppName
   }
   dependsOn: [
@@ -101,6 +103,7 @@ module acr './modules/acr.bicep' = {
     keyVaultSecretAdminPassword0: acrAdminPassword0
     keyVaultSecretAdminPassword1: acrAdminPassword1
     logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
+    containerRegistryDiagnosticsName: logicAppName
   }
 }
 
@@ -113,7 +116,6 @@ module keyVault './modules/keyVault.bicep' = {
     enableVaultForDeployment: true
     roleAssignments: roleAssignments
     logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
-    logicAppName: logicAppName
   }
 }
 

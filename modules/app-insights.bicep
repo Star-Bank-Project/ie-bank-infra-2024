@@ -9,7 +9,7 @@ param logAnalyticsWorkspaceId string
 
 @description('Slack Webhook URL to send alerts')
 @secure()
-param slackWebhookUrl string = 'https://hooks.slack.com/services/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'  // Default value for Slack Webhook URL
+param slackWebhookUrl string // Default value for Slack Webhook URL
 
 @description('Name of the Logic App')
 param logicAppName string

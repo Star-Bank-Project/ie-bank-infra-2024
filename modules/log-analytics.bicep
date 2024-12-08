@@ -9,8 +9,7 @@ param location string = resourceGroup().location
 @maxValue(730)
 param retentionInDays int = 30
 
-@description('Name of the Logic App')
-param logicAppName string
+
 
 // Create the Log Analytics workspace
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {

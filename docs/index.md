@@ -357,11 +357,17 @@ This approach, combining inner and outer loop strategies, provide an end to end 
 
 ### Use Cases and Sequential Model Design
 
-Must include for each use case
+[Sequential Model Design](docs/image/index/Sequential_Model_Design.png)
+
+[Use Cases](docs/image/index/Use_Case_Diagram.png)
 
 ### Entity Relationship Design
 
+[Entity Relationship Design](docs/image/index/Entity_Relationship_Diagram.png)
+
 ### Data Flow Diagram
+
+[Data Flow Diagram](docs/image/index/Data_Flow_Diagram.png)
 
 ### 12 Factor App Design
 

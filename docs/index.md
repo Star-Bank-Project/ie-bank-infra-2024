@@ -368,11 +368,32 @@ We enforce branch protection rules to ensure that all changes to the main branch
 **CODEOWNERS**
 The CODEOWNERS file is used to define the individuals or teams responsible for specific files or directories within the repository. This ensures that code changes are reviewed by the appropriate experts, enhancing code quality and security.
 
+https://github.com/Star-Bank-Project/ie-bank-fe-2024/blob/main/.github/CODEOWNERS
+
+https://github.com/Star-Bank-Project/ie-bank-be-2024/blob/main/.github/CODEOWNERS
+
+https://github.com/Star-Bank-Project/ie-bank-infra-2024/blob/main/.github/CODEOWNERS
+
+
 **Dependabot**
 Dependabot is configured to automatically check for updates to our dependencies. It creates pull requests to update dependencies to the latest versions, ensuring that we are protected against known vulnerabilities and benefiting from the latest features and fixes.
 
+https://github.com/Star-Bank-Project/ie-bank-fe-2024/blob/main/.github/dependabot.yml
+
+https://github.com/Star-Bank-Project/ie-bank-be-2024/blob/main/.github/dependabot.yml
+
+https://github.com/Star-Bank-Project/ie-bank-infra-2024/blob/main/.github/dependabot.yml
+
+
 **OpenSSF Scorecard**
 The OpenSSF Scorecard is used to assess the security posture of our repository. It runs automated checks to evaluate various security best practices and generates a scorecard report. This helps us identify and address potential security issues.
+
+https://github.com/Star-Bank-Project/ie-bank-fe-2024/blob/main/.github/workflows/scorecard.yml
+
+https://github.com/Star-Bank-Project/ie-bank-be-2024/blob/main/.github/workflows/scorecard.yml
+
+https://github.com/Star-Bank-Project/ie-bank-infra-2024/blob/main/.github/workflows/scorecard.yml
+
 
 **Secret Scanning**
 GitHub Secret Scanning is enabled to automatically detect and prevent the accidental inclusion of sensitive information such as API keys, passwords, and other secrets in the codebase. This helps to prevent unauthorized access and potential security breaches.
@@ -590,9 +611,44 @@ Key Vault Integration:
 
 **Encryption**
 
-- Azure Key Vault: The project uses Azure Key Vault to store sensitive information such as ACR admin credentials and database credentials. Key Vault ensures that these secrets are stored securely and are encrypted at rest.
-- Secure Parameters: In the Bicep files, parameters such as acrAdminPassword0, acrAdminPassword1, dockerRegistryServerUserName, and dockerRegistryServerPassword are marked as secure (@secure()). This ensures that these values are handled securely during deployment.
-- Database Credentials: The PostgreSQL server configuration includes an administrator login and password, which are encrypted.
+Data at Rest
+1. Database Encryption:
+  - **PostgreSQL:** Uses Transparent Data Encryption (TDE).
+  - **SQLite:** Encrypted using SQLCipher for local development.
+
+2. Environment Variables:
+  - Sensitive information stored in environment variables, loaded using python-dotenv.
+  - .env file is included in .gitignore.
+
+3. File Encryption:
+  - Sensitive files encrypted using AES-256.
+
+Data in Transit
+1. TLS/SSL:
+  - All client-server communication encrypted using TLS.
+  - Application uses HTTPS for external communications.
+
+2. Database Connections:
+  - Encrypted using SSL/TLS.
+
+Key Management
+1. Key Storage:
+  - Encryption keys stored in Azure Key Vault.
+  - Keys retrieved at runtime using Azure Key Vault SDK.
+
+2. Key Rotation:
+  - Regular key rotation policies implemented.
+
+Implementation Details
+1. Configuration:
+  - config.py loads environment variables and sets up database URIs.
+
+2. Environment Variables:
+  - Variables like DBUSER, DBPASS, DBHOST, DBNAME, and JWT_SECRET_KEY loaded using dotenv.
+
+3. Docker:
+  - Sensitive information passed as environment variables during runtime.
+
 
 **Use of Safe Functions**
 
@@ -604,34 +660,34 @@ Coding standards and conventions ensure code quality, readability, and consisten
 
 Coding Standards
 1. Language and Frameworks:
-- Python: Flask, PEP 8 style guide.
-- JavaScript: Airbnb JavaScript Style Guide, ESLint.
-- Naming Conventions:
+  - Python: Flask, PEP 8 style guide.
+  - JavaScript: Airbnb JavaScript Style Guide, ESLint.
+  - Naming Conventions:
 2. Variables/Functions: snake_case (Python), camelCase (JavaScript).
-- Classes: PascalCase.
-- Constants: UPPER_SNAKE_CASE.
-4. File Structure:
-- Organized code into logical modules (e.g., models, controllers).
+  - Classes: PascalCase.
+  - Constants: UPPER_SNAKE_CASE.
+3. File Structure:
+  - Organized code into logical modules (e.g., models, controllers).
 
 Conventions
 1. Version Control:
-- Use Git with GitFlow branching model.
-- Follow Conventional Commits for commit messages.
+  - Use Git with GitFlow branching model.
+  - Follow Conventional Commits for commit messages.
 2. Dependency Management:
-- Use requirements.txt (Python) and package.json (JavaScript).
-- Regular updates with Dependabot.
+  - Use requirements.txt (Python) and package.json (JavaScript).
+  - Regular updates with Dependabot.
 3. Code Reviews:
-- Use GitHub Pull Requests for peer reviews.
+  - Use GitHub Pull Requests for peer reviews.
 4. Security:
-- Follow secure coding practices.
-- Use CodeQL and Dependabot for security checks.
+  - Follow secure coding practices.
+  - Use CodeQL and Dependabot for security checks.
 
 Tools and Integrations
 1. Linters and Formatters:
-- flake8, black (Python).
-- ESLint, Prettier (JavaScript).
+  - flake8, black (Python).
+  - ESLint, Prettier (JavaScript).
 2. CI/CD:
-- Use GitHub Actions for automated testing and deployment.
+  - Use GitHub Actions for automated testing and deployment.
 
 **Use Code Analysis Tools**
 To ensure early detection of vulnerabilities and maintain a high standard of code security, our project employs a combination of advanced code analysis tools. These tools enhance the security of the codebase by identifying potential issues, enforcing best practices, and mitigating risks at various levels:

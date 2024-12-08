@@ -26,20 +26,6 @@ resource appServiceApp 'Microsoft.Web/sites@2022-03-01' = {
   }
 }
 
-resource appServiceDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-  name: 'appServiceDiagnostics'
-  scope: appServiceApp
-  properties: {
-    logs: [
-      { category: 'AppServiceHTTPLogs', enabled: true }
-      { category: 'AppServiceConsoleLogs', enabled: true }
-    ]
-    metrics: [
-      { category: 'AllMetrics', enabled: true }
-    ]
-    workspaceId: logAnalyticsWorkspaceId
-  }
-}
 
 output appServiceAppHostName string = appServiceApp.properties.defaultHostName
 

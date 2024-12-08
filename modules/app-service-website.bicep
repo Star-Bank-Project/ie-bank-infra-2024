@@ -8,7 +8,6 @@ param appSettings array = []
 ])
 param linuxFxVersion string = 'NODE|18-lts'
 param appCommandLine string = ''
-param logAnalyticsWorkspaceId string
 
 resource appServiceApp 'Microsoft.Web/sites@2022-03-01' = {
   name: name

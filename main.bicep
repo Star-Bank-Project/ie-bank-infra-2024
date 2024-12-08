@@ -60,6 +60,8 @@ param logAnalyticsWorkspaceName string
 @description('Application Insights resource name')
 param appInsightsName string
 
+param logicAppName string
+
 /* Variables for Key Vault Secrets */
 var acrUsernameSecretName = 'acrAdminUsername'
 var acrPassword0SecretName = 'acrAdminPassword0'
@@ -68,6 +70,7 @@ var acrPassword0SecretName = 'acrAdminPassword0'
 module logAnalytics './modules/log-analytics.bicep' = {
   name: 'logAnalytics-${userAlias}'
   params: {
+    logicAppName: logicAppName
     location: location
     name: logAnalyticsWorkspaceName
   }
@@ -80,6 +83,7 @@ module appInsights './modules/app-insights.bicep' = {
     location: location
     appInsightsName: appInsightsName
     logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
+    logicAppName: logicAppName
   }
   dependsOn: [
     logAnalytics
@@ -109,6 +113,7 @@ module keyVault './modules/keyVault.bicep' = {
     enableVaultForDeployment: true
     roleAssignments: roleAssignments
     logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
+    logicAppName: logicAppName
   }
 }
 
@@ -193,8 +198,92 @@ module appServiceWebsiteFE './modules/app-service-website.bicep' = {
   ]
 }
 
+/* Application Insights Diagnostic Settings */
+resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'DiagnosticSettings-${userAlias}'
+  scope: resourceGroup() // Attach to the resource group
+  properties: {
+    workspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
+    logs: [
+      {
+        category: 'ApplicationGatewayAccessLogs'
+        enabled: true
+      }
+      {
+        category: 'ApplicationGatewayPerformanceLogs'
+        enabled: true
+      }
+      {
+        category: 'Requests'
+        enabled: true
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+  }
+}
+
+/* Metric Alert for API Response Time */
+resource apiResponseTimeAlert 'Microsoft.Insights/metricAlerts@2018-03-01' = {
+  name: 'APIResponseTimeAlert-${userAlias}'
+  location: 'global'
+  properties: {
+    description: 'Alert when API response time exceeds the threshold'
+    severity: 2
+    enabled: true
+    scopes: [
+      appInsights.outputs.appInsightsInstrumentationKey
+    ]
+    evaluationFrequency: 'PT1M'
+    windowSize: 'PT5M'
+    criteria: {
+      'odata.type': 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
+      allOf: [
+        {
+          name: 'APIResponseTime'
+          criterionType: 'StaticThresholdCriterion'
+          metricName: 'requests/duration'
+          operator: 'GreaterThan'
+          threshold: 5000 // Threshold for alert (e.g., 5000 ms or 5 seconds)
+          timeAggregation: 'Average'
+        }
+      ]
+    }
+    autoMitigate: true
+    actions: [
+      {
+        actionGroupId: logicAppActionGroup.id
+        webHookProperties: {
+          customMessage: 'API response time exceeded threshold.'
+        }
+      }
+    ]
+  }
+}
+
+/* Action Group for Alert Notification (Slack) */
+resource logicAppActionGroup 'Microsoft.Insights/actionGroups@2022-06-01' = {
+  name: 'Slack-Notification-ActionGroup'
+  location: 'global'
+  properties: {
+    groupShortName: 'SlackAlert'
+    enabled: true
+    webhookReceivers: [
+      {
+        name: 'SlackWebhook'
+        serviceUri: 'https://hooks.slack.com/services/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'  // Your Slack Webhook URL
+        useCommonAlertSchema: true
+      }
+    ]
+  }
+}
+
 /* Outputs */
 output appServiceWebsiteBEHostName string = appServiceWebsiteBE.outputs.appServiceBackendHostName
 output appServiceWebsiteFEHostName string = appServiceWebsiteFE.outputs.appServiceAppHostName
 output logAnalyticsWorkspaceId string = logAnalytics.outputs.logAnalyticsWorkspaceId
-output appInsightsInstrumentationKey string = appInsights.outputs.instrumentationKey 
+output appInsightsInstrumentationKey string = appInsights.outputs.appInsightsInstrumentationKey

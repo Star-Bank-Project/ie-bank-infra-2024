@@ -1,5 +1,5 @@
 @description('Log Analytics workspace name')
-param name string 
+param name string
 
 @description('Azure location for the resources to deploy')
 param location string = resourceGroup().location
@@ -9,6 +9,10 @@ param location string = resourceGroup().location
 @maxValue(730)
 param retentionInDays int = 30
 
+@description('Name of the Logic App')
+param logicAppName string
+
+// Create the Log Analytics workspace
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
   name: name
   location: location
@@ -17,6 +21,31 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-08
       name: 'PerGB2018'  // Default pricing tier; adjust if needed
     }
     retentionInDays: retentionInDays  // Customizable retention period
+  }
+}
+
+// Create Diagnostic Settings for Log Analytics Workspace
+resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'DiagnosticSettings-${logAnalyticsWorkspace.name}'
+  scope: logAnalyticsWorkspace  // Attach to the Log Analytics Workspace
+  properties: {
+    workspaceId: logAnalyticsWorkspace.id
+    logs: [
+      {
+        category: 'AuditLogs'
+        enabled: true
+      }
+      {
+        category: 'ActivityLogs'
+        enabled: true
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
   }
 }
 

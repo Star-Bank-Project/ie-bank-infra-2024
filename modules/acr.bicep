@@ -15,6 +15,9 @@ param keyVaultSecretAdminPassword0 string
 @secure()
 param keyVaultSecretAdminPassword1 string 
 
+@description('Diagnostic settings name for the Container Registry')
+param containerRegistryDiagnosticsName string = 'acrDiagnostics'
+
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
   name: name
   location: location
@@ -22,37 +25,42 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' =
     name: 'Basic'
   }
   properties: {
-    adminUserEnabled: true // this line allows the ACR to generate a username and password (admin credentials) for authentication.
+    adminUserEnabled: true // This line allows the ACR to generate a username and password (admin credentials) for authentication.
   }
-  dependsOn: [
-    adminCredentialsKeyVault
-  ]
 }
 
-// 
+// Adding diagnostic settings
 resource acrDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-  name: 'acrDiagnostics'
-  scope: containerRegistry 
+  name: containerRegistryDiagnosticsName
+  scope: containerRegistry // Attach to the Container Registry
   properties: {
+    workspaceId: logAnalyticsWorkspaceId // Log Analytics Workspace ID
     logs: [
-      { category: 'ContainerRegistryRepositoryEvents', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
-      { category: 'ContainerRegistryLoginEvents', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
+      {
+        category: 'ContainerRegistryLoginEvents' // Tracks login events
+        enabled: true
+      }
+      {
+        category: 'ContainerRegistryRepositoryEvents' // Tracks repository events (push, pull, delete)
+        enabled: true
+      }
     ]
     metrics: [
-      { category: 'AllMetrics', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
+      {
+        category: 'AllMetrics' // Tracks metrics for ACR
+        enabled: true
+      }
     ]
-    workspaceId: logAnalyticsWorkspaceId
   }
 }
 
-// Define the Key Vault as a direct resource
+// Define the Key Vault as an existing resource
 resource adminCredentialsKeyVault 'Microsoft.KeyVault/vaults@2021-10-01' existing = {
   name: keyVaultName
-  scope: resourceGroup()
 }
 
-// Store the ACR admin username in the Key Vault
-resource secretAdminUserName 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+// Store the container registry admin username in Key Vault
+resource secretAdminUserName 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   name: keyVaultSecretAdminUsername
   parent: adminCredentialsKeyVault
   properties: {
@@ -60,8 +68,8 @@ resource secretAdminUserName 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
   }
 }
 
-// Store the first ACR admin password in the Key Vault
-resource secretAdminUserPassword0 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+// Store the container registry admin password 0 in Key Vault
+resource secretAdminUserPassword0 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   name: keyVaultSecretAdminPassword0
   parent: adminCredentialsKeyVault
   properties: {
@@ -69,8 +77,8 @@ resource secretAdminUserPassword0 'Microsoft.KeyVault/vaults/secrets@2023-02-01'
   }
 }
 
-// Store the second ACR admin password in the Key Vault
-resource secretAdminUserPassword1 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+// Store the container registry admin password 1 in Key Vault
+resource secretAdminUserPassword1 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   name: keyVaultSecretAdminPassword1
   parent: adminCredentialsKeyVault
   properties: {
@@ -80,4 +88,3 @@ resource secretAdminUserPassword1 'Microsoft.KeyVault/vaults/secrets@2023-02-01'
 
 // Output the ACR name
 output containerRegistryName string = containerRegistry.name
-

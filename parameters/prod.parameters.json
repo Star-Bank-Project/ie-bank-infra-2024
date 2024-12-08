@@ -95,6 +95,9 @@
       },
       "appInsightsName": {
         "value": "makenna-appInsights-prod"
+      },
+      "logicAppName": {
+        "value": "StarBankLogicApp"
       }
     }
   }

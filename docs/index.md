@@ -316,6 +316,18 @@ App Service Deployment: Deploys containers to Azure App Service.
 
 Fixed missing Dockerfiles and resolved registry authentication failures by retrieving credentials from Azure Key Vault.
 
+#### Test/behavior driven development strategy
+
+The Test/Behavior Driven Development (TDD) strategy implemented emphasizes building robust and reliable software by designing tests derived directly from user stories and acceptance criteria. The strategy, as documented in the Design Document, focuses on creating automated unit and functional tests that validate core backend functionalities, ensuring alignment with defined business logic.
+
+The designed tests cover key aspects of the backend API:
+
+Functional Tests: Verify critical user-facing functionalities, such as fetching account details (test_get_accounts) and creating new accounts (test_create_account). Additionally, edge cases like invalid routes are tested using cases like test_dummy_wrong_path to ensure the API gracefully handles errors.
+Unit Tests: Test core backend logic, such as database model operations, exemplified by test_create_account in the test_model.py file, ensuring backend stability at the data layer.
+The tests were executed using Pytest, generating a detailed test coverage report. The coverage breakdown reveals the focus on functional robustness and highlights areas for potential improvement, such as the routes.py file, which currently has partial test coverage. This aligns with the iterative nature of TDD, prioritizing test implementation for high-impact code paths first.
+
+This approach is directly tied to user stories such as "As a user, I want to create an account so that I can use the banking services" and "As a user, I want to view my account details to track my finances." By designing and executing tests based on these stories, the development team ensured that the implemented functionalities met user requirements while maintaining a high standard of quality.
+
 ### Use Cases and Sequential Model Design
 
 Must include for each use case

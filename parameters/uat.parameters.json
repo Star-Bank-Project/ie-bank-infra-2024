@@ -5,11 +5,23 @@
     "environmentType": {
       "value": "uat"
     },
+    "dockerRegistryImageName": {
+      "value": "my-container-image"
+    },
     "userAlias": {
       "value": "makenna"
     },
     "containerRegistryName": {
       "value": "makennaacruat"
+    },
+    "acrAdminUsername": {
+      "value": "acrAdminUsername"
+    },
+    "acrAdminPassword0": {
+      "value": "acrAdminPassword0" 
+    },
+    "acrAdminPassword1": {
+      "value": "acrAdminPassword1" 
     },
     "keyVaultName": {
       "value": "makenna-keyvault-uat"
@@ -45,11 +57,11 @@
         },
         {
           "name": "DBUSER",
-          "value": "@Microsoft.KeyVault(SecretUri=https://makenna-keyvault-uat.vault.azure.net/secrets/DBUSER)"
+          "value": "makiwarner"
         },
         {
           "name": "DBPASS",
-          "value": "@Microsoft.KeyVault(SecretUri=https://makenna-keyvault-uat.vault.azure.net/secrets/DBPASS)"
+          "value": "Chip3548"
         },
         {
           "name": "FLASK_APP",

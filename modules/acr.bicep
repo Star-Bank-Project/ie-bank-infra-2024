@@ -7,20 +7,20 @@ param location string = resourceGroup().location
 @description('The name of the Key Vault where credentials will be stored')
 param keyVaultName string
 @secure()
-param keyVaultSecretAdminUsername string 
+param keyVaultSecretAdminUsername string
 @secure()
-param keyVaultSecretAdminPassword0 string 
+param keyVaultSecretAdminPassword0 string
 @secure()
-param keyVaultSecretAdminPassword1 string 
+param keyVaultSecretAdminPassword1 string
 
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
   name: name
   location: location
   sku: {
-    name: 'Basic' // Change to 'Standard' or 'Premium' if needed
+    name: 'Basic'
   }
   properties: {
-    adminUserEnabled: true
+    adminUserEnabled: true // this line allows the ACR to generate a username and password (admin credentials) for authentication.
   }
   dependsOn: [
     adminCredentialsKeyVault
@@ -62,4 +62,3 @@ resource secretAdminUserPassword1 'Microsoft.KeyVault/vaults/secrets@2023-02-01'
 
 // Output the ACR name
 output containerRegistryName string = containerRegistry.name
-

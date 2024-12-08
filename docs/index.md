@@ -158,67 +158,65 @@ To provide users with an innovative, reliable, and secure banking platform, comb
 *Figure 1: Infrastructure Architechture Design*
 
 #### GitHub
-
 Github is the platform we used to host our infrastructure repository. The repo contains Bicep templates for each resource (see below). Github actions was used to fulfill the resource deployments.
 
-#### App Service for containers
-
+#### App Service for containers 
 The main purpose of the App Service Container is to host the containerized backend application. It retrieves the Azure Container Registry credentials from the Key Vault which enables access to pull the container image for the backend. This resource depends on the App Service Plan for the compute resources, the Key Vault for secret retrieval, and the Azure Container Registry for the container image hosting. The App Service for Containers inputs the `appServicePlan.id` to link to the App Service Plan. The App Service for Containers outputs the App Service Host Name and the Managed Identity Principle ID.
 
-#### App Service Plan
-
+#### App Service Plan 
 The App Service Plan is used to allocate resrouces (such as CPU, memory, etc.) to the app services (static website and container for backend). The App Service Plan outputs the `appServicePlan.id`.
 
 #### PostgreSQL database
-
 The PostgreSQL database is used to store and manage the user account information. It is hosted by the PostgreSQL server.
 
 #### PostgreSQL server
-
 This server provides access to the database by securely accessing the App Service Back End by using the admin managed identity. The postgreSQLAdministrators resource configures an Azure Active Directory service principle as the admin of the database by passing in the Managed Identity Principle ID from the App Service for Containers. The Admin is able to manage the databases, users, and permissions. The Server bicep outputs the `postgreSQLServer.id`.
 
-#### Static website
-
+#### Static website 
 The static website resource hosts the front end. It inputs the `appServicePlan.id` to link to the App Service Plan for its necessary resources. One interesting configuration is the `httpsOnly` set to true to ensure communication between users and the static site is secure. The static website outputs the hostname (a URL) for access to the deployed app.
 
 #### Azure Container Registry
-
 The Azure Container Registry stores the container images that will be used by the App Service. The ACR generates a user and two passwords that are needed by other modules for access. The ACR credential values are dynamically fetched using the `listCredentials` function and are stored in the Key Vault as secrets.
 
 #### Key Vault
-
 The Key Vault stores and encrpts sensitive information like the ACR credentials. By using a Key Vault, we securely access them without ever exposing them in plain text.
 
 #### Log Analytics Workspace
-
 The Log Analytics Workspace collects, stores, and analyzes log and telemetry data from the resources for monitoring.
 
 #### Application Insights
-
 Application Insights provides insights into the application performance, user behavior, and diagnostics of both the front and back end, which enables proactive issue detection and resolution.
 
 #### **Modularization Strategy**
 
 To streamline the deployment and management of the infrastructure, we used the following modularization strategy:
+- **Separation of Concerns:**  
+  Each module in the repository is designed to handle a specific aspect of the infrastructure. This ensures maintainability, reusability, and scalability.
 
-- **Separation of Concerns:**Each module in the repository is designed to handle a specific aspect of the infrastructure. This ensures maintainability, reusability, and scalability.
-- **Main Bicep File:**The `main.bicep` file acts as the orchestration layer. It references all modules and integrates them with environment-specific configurations through JSON parameter files.
+- **Main Bicep File:**  
+  The `main.bicep` file acts as the orchestration layer. It references all modules and integrates them with environment-specific configurations through JSON parameter files.
+
 - **Modules:**
-
-  - **App Service Container Module (`app-service-container.bicep`):**Configures the backend App Service, enabling system-assigned identity and secure integration with Key Vault and Azure Container Registry.
-  - **Backend App Service Website Module (`app-service-website.bicep`):**Configures the frontend App Service websites, enabling HTTPS-only traffic, custom domains, and integration with the App Service Plan.
-  - **PostgreSQL Module (`postgre-sql-server.bicep`):**Deploys the PostgreSQL server with AAD authentication and connects the App Service using managed identity.
-  - **Database Module (`postgre-sql-db.bicep`):**Creates the database within the PostgreSQL server, with configurations such as charset and collation.
-  - **Key Vault Module (`keyVault.bicep`):**Sets up the Key Vault for storing sensitive credentials like ACR admin credentials and database passwords.
-  - **App Service Plan Module (`app-service-plan.bicep`):**Provisions compute resources shared by backend and frontend services.
-  - **Azure Container Registry Module (`acr.bicep`):**
+  - **App Service Container Module (`app-service-container.bicep`):**  
+    Configures the backend App Service, enabling system-assigned identity and secure integration with Key Vault and Azure Container Registry.
+  - **Backend App Service Website Module (`app-service-website.bicep`):**  
+    Configures the frontend App Service websites, enabling HTTPS-only traffic, custom domains, and integration with the App Service Plan.
+  - **PostgreSQL Module (`postgre-sql-server.bicep`):**  
+    Deploys the PostgreSQL server with AAD authentication and connects the App Service using managed identity.
+  - **Database Module (`postgre-sql-db.bicep`):**  
+    Creates the database within the PostgreSQL server, with configurations such as charset and collation.
+  - **Key Vault Module (`keyVault.bicep`):**  
+    Sets up the Key Vault for storing sensitive credentials like ACR admin credentials and database passwords.
+  - **App Service Plan Module (`app-service-plan.bicep`):**  
+    Provisions compute resources shared by backend and frontend services.
+  - **Azure Container Registry Module (`acr.bicep`):**  
     Deploys the ACR to host containerized application images.
-- **Environment-Specific Configuration:**
 
+- **Environment-Specific Configuration:**  
   - Separate parameter files (`dev.parameters.json`, `uat.parameters.json`, and `prod.parameters.json`(coming soon)) define environment-specific configurations like resource group names, locations, and sensitive values.
   - This supports consistency across environments while allowing flexibility.
-- **Automation and CI/CD:**
 
+- **Automation and CI/CD:**  
   - GitHub Actions workflows automate the deployment process for each environment, triggered by `push`, `pull_request`, or `workflow_dispatch` events.
   - The modularized design ensures seamless integration of changes and simplifies troubleshooting.
 
@@ -317,7 +315,6 @@ https://learn.microsoft.com/en-us/devops/devsecops/enable-devsecops-azure-github
 https://best.openssf.org/Concise-Guide-for-Developing-More-Secure-Software
 
 #### Cost Optimization
-
 - Burstable SKU for PostgreSQL Server: This setting configures the PostgreSQL server with the Standard_B1ms SKU, a burstable VM type (meaning that the server can “burst” to higher levels to support occasional spikes in usage). This setup optimizes costs by allocating resources dynamically.
 - Basic SKU for Azure Container Registry: The ACR's SKU is set to Basic in the dev and UAT environments, which reduces costs for non-critical workloads while still supporting required container operations.
 - Environment-Specific Parameters: Beneficial because it allows environment specific parameters to ensure that non-production environments use less expensive resources, (ex: flask_debug is set to 0 in non production environments) while still offering flexibility in the prod environment.
@@ -339,6 +336,12 @@ https://best.openssf.org/Concise-Guide-for-Developing-More-Secure-Software
 ## Software Design & Planning
 
 ### Release Strategy Design
+The release strategy follows a DTAP (Development, Testing, Acceptance, and Production) environment approach. Each environment is managed separately, leveraging Azure services to ensure proper isolation and scalability. GitHub Actions have been configured to handle CI/CD for development, UAT, and production workflows. The strategy ensures:
+
+Development branch triggers deployment to the DEV environment.
+Pull requests to the main branch deploy to UAT.
+Successful merges into the main branch trigger production deployments.
+The strategy also incorporates Test-Driven Development (TDD) principles to validate functionality before integration, ensuring quality and robustness at every stage.
 
 The release strategy follows a DTAP (Development, Testing, Acceptance, and Production) environment approach. Each environment is managed separately, leveraging Azure services to ensure proper isolation and scalability. GitHub Actions have been configured to handle CI/CD for development, UAT, and production workflows. The strategy ensures:
 
@@ -350,12 +353,12 @@ The strategy also incorporates Test-Driven Development (TDD) principles to valid
 ### CI/CD Pipeline and Release Strategy
 
 #### Git feature branch strategy
-
 - The startegy adopted for both Backend and Frontend focused on the implementation of short-lived feauture branches derived from the main branch. This helped managing updates to the code and better understanding and debugging of code due to its modular nature, as each feature, user story or task was done on seperate branches. After checking that the workflow actions fully deploy and work, a pull request is made, where two reviewers are called to give their approval for the merging to the main branch.
 - Examples:
 
   - backend had branches called containerization, one called backendci (here the implementation of backed CI/CD was implemented), ayacibe (where another approach to CI/CD was implemnted) and prodcicd (where the variables and parameters to integrate and deploy the backend in the Production resource group)
   - frontend had two branches for the CI/CD with two different approaches (ayacife and ciayafe), and three branches where errors were fixed called ayanew, fixingfe and null-cookie-fix. And one last one called prod where the yml file was changed to integrate and deploy in the production environment.
+
 
 #### Frontend
 
@@ -364,7 +367,7 @@ The strategy also incorporates Test-Driven Development (TDD) principles to valid
 The CI pipeline is in charge of development and integration as well as verification of the rest API implementation for the respective Vue.js based frontend applications.
 
 1. Dependency Installation:
-   the jobs start with installing all required dependencies in a clean, consistent environment using `npm ci`. Then it ensure that all packages and dependicies are conssitent with what was outlined in the package-lock.json where version of the dependencies were defined.
+   The jobs start with installing all required dependencies in a clean, consistent environment using `npm ci`. Then it ensure that all packages and dependicies are conssitent with what was outlined in the package-lock.json where version of the dependencies were defined.
 2. Build Verification:
    This job is split into three parts for the three environments (DEV, UAT, PROD) and ensures that it compiles correctly
 3. Linting:
@@ -414,6 +417,24 @@ As specified in `ie-bank-backend.yml`, the Flask based API is automated tested a
 4. Coverage Reports:
    after testing the coverage reports are then geneated and uploaded using pytest-cov, ensuring all critical code paths are tested.
 
+As specified in ie-bank-backend.yml, the Flask based API is automated tested at this point. The key steps include:
+
+1. Environment Setup:
+Using pip install all python dependencies which are defined in the requirements.txt are to be installed. then the 3 environemnt and their appropriate variables (BACKEND_WEBAPP, DOCKER_REGISTRY_SERVER_URL, IMAGE_NAME, KEY_VAULT_NAME) are defined for all environemnts. 
+
+2. Static Analysis:
+flake8 is implemnetd to enforce Python coding standards and catching potential bugs or syntax issues early.
+
+3. Unit and Functional Testing:
+Executes pytest for unit and functional tests to validate core API functionality, using a PostgreSQL test database defined in the workflow.
+
+4. Coverage Reports:
+after testing the coverage reports are then geneated and uploaded using pytest-cov, ensuring all critical code paths are tested.
+
+Fixed Issues:
+  
+  - Enhanced test reliability by mocking dependencies and isolating tests.
+
 **CD Description**
 
 The CD pipeline builds and deploys the Flask backend as a Docker container:
@@ -430,6 +451,7 @@ The CD pipeline focuses on the containerization of the backend as a docker conta
    Publishes the Docker images to Azure Container Registry for centralized storage and secure access.
 3. App Service Deployment:
    Deploys the backend containers to Azure App Services using the Azure CLI (az webapp create and az webapp config) or GitHub actions for streamlined deployment.
+
 
 #### Test/behavior driven development strategy
 
@@ -459,28 +481,26 @@ This approach, combining inner and outer loop strategies, provide an end to end 
 ### Use Cases and Sequential Model Design
 
 #### Registration
-
 ![1733680707322](image/index/1733680707322.png)
 
 #### Login
-
 ![1733680683517](image/index/1733680683517.png)
 
 #### Transaction
-
 ![1733680694511](image/index/1733680694511.png)
 
 ### Entity Relationship Diagram
-
 ![1733599437329](image/index/1733599437329.png)
 
 *Figure #. Entity Relationship Diagram*
 
-### Data Flow Diagram
+[Entity Relationship Design](docs/image/index/Entity_Relationship_Diagram.png)
 
+### Data Flow Diagram
 ![1733598987314](image/index/1733598987314.png)
 
 *Figure #. Data Flow Diagram*
+
 
 ### 12 Factor App Design
 
@@ -511,12 +531,11 @@ This approach, combining inner and outer loop strategies, provide an end to end 
 
 ### Infrastructure Release Strategy
 
-Our infrastructure release strategy ensures a streamlined and automated approach to managing infrastructure deployments across environments thanks to the CI/CD approach and GitHub actions. The CI workflow is delineated in the `ie-bank-infra.yml` file. It ensures that the infrastructure code is validated and linted whenever changes are pushed to the repository or a pull request is created. This ensures that any syntax or structural errors in the Bicep templates are caught early in the development lifecycle. The CD workflow is delineated in the `ie-bank-infra.yml file`. It automates the deployment of infrastructure to different environments. We have an environment specific strategy, where the dev environment experiences frequent deployments to test and validate changes in the initial stages of development, the UAT environment is only deployed when a branch is merged to main, and the production environment is only deployed when all checks and validations are passed.
+Our infrastructure release strategy ensures a streamlined and automated approach to managing infrastructure deployments across environments thanks to the CI/CD approach and GitHub actions. The CI workflow is delineated in the ie-bank-infra.yml file. It ensures that the infrastructure code is validated and linted whenever changes are pushed to the repository or a pull request is created. This ensures that any syntax or structural errors in the Bicep templates are caught early in the development lifecycle. The CD workflow is delineated in the ie-bank-infra.yml file. It automates the deployment of infrastructure to different environments. We have an environment specific strategy, where the dev environment experiences frequent deployments to test and validate changes in the initial stages of development, the UAT environment is only deployed when a branch is merged to main, and the production environment is only deployed when all checks and validations are passed. 
 
-This automatched deployment approach is beneficial because it minimizes manual errors, ensures consistency across environments.
+This automatched deployment approach is beneficial because it minimizes manual errors, ensures consistency across environments. 
 
 ### Documented User Stories
-
 #### Default Admin Account Setup
 
 - **Description:** As a bank administrator, I want to use a default admin account to log into the system so that I can access the user management portal immediately after setup.

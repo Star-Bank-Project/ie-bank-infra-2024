@@ -4,6 +4,8 @@
 
 ### Product Planning for Star Bank
 
+![1733686455384](image/index/1733686455384.png)
+
 #### Product Vision
 
 Create a seamless banking experience that empowers every user to easily manage their finances, ensuring efficiency, security, and user satisfaction.
@@ -147,6 +149,13 @@ To provide users with an innovative, reliable, and secure banking platform, comb
 - Review sprint goals during the sprint review and gather feedback.
 - Plan the next sprint based on updated priorities.
 
+#### DevOps Collaboration
+
+- **GitHub and Azure DevOps Boards:** Track issues, automate builds, and manage deployments.
+- **Slack and Azure DevOps: Receive updates on task progress and deployments.
+- **Slack and GitHub: Notify teams about pull requests and changes in code.
+- **Slack and Zoom: Facilitate virtual meetings for distributed teams.
+
 ---
 
 ## Architechture Design & Planning
@@ -158,73 +167,70 @@ To provide users with an innovative, reliable, and secure banking platform, comb
 *Figure 1: Infrastructure Architechture Design*
 
 #### GitHub
+
 Github is the platform we used to host our infrastructure repository. The repo contains Bicep templates for each resource (see below). Github actions was used to fulfill the resource deployments.
 
-#### App Service for containers 
+#### App Service for containers
+
 The main purpose of the App Service Container is to host the containerized backend application. It retrieves the Azure Container Registry credentials from the Key Vault which enables access to pull the container image for the backend. This resource depends on the App Service Plan for the compute resources, the Key Vault for secret retrieval, and the Azure Container Registry for the container image hosting. The App Service for Containers inputs the `appServicePlan.id` to link to the App Service Plan. The App Service for Containers outputs the App Service Host Name and the Managed Identity Principle ID.
 
-#### App Service Plan 
+#### App Service Plan
+
 The App Service Plan is used to allocate resrouces (such as CPU, memory, etc.) to the app services (static website and container for backend). The App Service Plan outputs the `appServicePlan.id`.
 
 #### PostgreSQL database
+
 The PostgreSQL database is used to store and manage the user account information. It is hosted by the PostgreSQL server.
 
 #### PostgreSQL server
+
 This server provides access to the database by securely accessing the App Service Back End by using the admin managed identity. The postgreSQLAdministrators resource configures an Azure Active Directory service principle as the admin of the database by passing in the Managed Identity Principle ID from the App Service for Containers. The Admin is able to manage the databases, users, and permissions. The Server bicep outputs the `postgreSQLServer.id`.
 
-#### Static website 
+#### Static website
+
 The static website resource hosts the front end. It inputs the `appServicePlan.id` to link to the App Service Plan for its necessary resources. One interesting configuration is the `httpsOnly` set to true to ensure communication between users and the static site is secure. The static website outputs the hostname (a URL) for access to the deployed app.
 
 #### Azure Container Registry
+
 The Azure Container Registry stores the container images that will be used by the App Service. The ACR generates a user and two passwords that are needed by other modules for access. The ACR credential values are dynamically fetched using the `listCredentials` function and are stored in the Key Vault as secrets.
 
 #### Key Vault
+
 The Key Vault stores and encrpts sensitive information like the ACR credentials. By using a Key Vault, we securely access them without ever exposing them in plain text.
 
 #### Log Analytics Workspace
+
 The Log Analytics Workspace collects, stores, and analyzes log and telemetry data from the resources for monitoring.
 
 #### Application Insights
+
 Application Insights provides insights into the application performance, user behavior, and diagnostics of both the front and back end, which enables proactive issue detection and resolution.
 
 #### **Modularization Strategy**
 
 To streamline the deployment and management of the infrastructure, we used the following modularization strategy:
-- **Separation of Concerns:**  
-  Each module in the repository is designed to handle a specific aspect of the infrastructure. This ensures maintainability, reusability, and scalability.
 
-- **Main Bicep File:**  
-  The `main.bicep` file acts as the orchestration layer. It references all modules and integrates them with environment-specific configurations through JSON parameter files.
-
+- **Separation of Concerns:** Each module in the repository is designed to handle a specific aspect of the infrastructure. This ensures maintainability, reusability, and scalability.
+- **Main Bicep File:** The `main.bicep` file acts as the orchestration layer. It references all modules and integrates them with environment-specific configurations through JSON parameter files.
 - **Modules:**
-  - **App Service Container Module (`app-service-container.bicep`):**  
-    Configures the backend App Service, enabling system-assigned identity and secure integration with Key Vault and Azure Container Registry.
-  - **Backend App Service Website Module (`app-service-website.bicep`):**  
-    Configures the frontend App Service websites, enabling HTTPS-only traffic, custom domains, and integration with the App Service Plan.
-  - **PostgreSQL Module (`postgre-sql-server.bicep`):**  
-    Deploys the PostgreSQL server with AAD authentication and connects the App Service using managed identity.
-  - **Database Module (`postgre-sql-db.bicep`):**  
-    Creates the database within the PostgreSQL server, with configurations such as charset and collation.
-  - **Key Vault Module (`keyVault.bicep`):**  
-    Sets up the Key Vault for storing sensitive credentials like ACR admin credentials and database passwords.
-  - **App Service Plan Module (`app-service-plan.bicep`):**  
-    Provisions compute resources shared by backend and frontend services.
-  - **Azure Container Registry Module (`acr.bicep`):**  
-    Deploys the ACR to host containerized application images.
 
-- **Environment-Specific Configuration:**  
+  - **App Service Container Module (`app-service-container.bicep`):** Configures the backend App Service, enabling system-assigned identity and secure integration with Key Vault and Azure Container Registry.
+  - **Backend App Service Website Module (`app-service-website.bicep`):** Configures the frontend App Service websites, enabling HTTPS-only traffic, custom domains, and integration with the App Service Plan.
+  - **PostgreSQL Module (`postgre-sql-server.bicep`):** Deploys the PostgreSQL server with AAD authentication and connects the App Service using managed identity.
+  - **Database Module (`postgre-sql-db.bicep`):** Creates the database within the PostgreSQL server, with configurations such as charset and collation.
+  - **Key Vault Module (`keyVault.bicep`):** Sets up the Key Vault for storing sensitive credentials like ACR admin credentials and database passwords.
+  - **App Service Plan Module (`app-service-plan.bicep`):** Provisions compute resources shared by backend and frontend services.
+  - **Azure Container Registry Module (`acr.bicep`):** Deploys the ACR to host containerized application images.
+- **Environment-Specific Configuration:**
+
   - Separate parameter files (`dev.parameters.json`, `uat.parameters.json`, and `prod.parameters.json`(coming soon)) define environment-specific configurations like resource group names, locations, and sensitive values.
   - This supports consistency across environments while allowing flexibility.
+- **Automation and CI/CD:**
 
-- **Automation and CI/CD:**  
   - GitHub Actions workflows automate the deployment process for each environment, triggered by `push`, `pull_request`, or `workflow_dispatch` events.
   - The modularized design ensures seamless integration of changes and simplifies troubleshooting.
 
 ### Environment Design
-
-- **Which environments do we need for our workloads?**
-  - And what configuration will our Azure services have for each environment?
-- with the infra dev and the full stack dev
 
 #### **Development Environment (DEV)**
 
@@ -256,17 +262,17 @@ To streamline the deployment and management of the infrastructure, we used the f
 
 ### **Production Environment (PROD)**
 
-| **Azure Infra Service**              | **Configurations**                                                                                  |
-|------------------------------------- |-----------------------------------------------------------------------------------------------------|
-| **GitHub**                           | Triggers deployments via `push` or `workflow_dispatch` (manually). Uses separate `RESOURCE_GROUP_PROD`. |
-| **App Service for containers**       | `makenna-be-prod`, connected to the ACR for pulling the backend container image securely.              |
-| **App Service Plan**                 | `makenna-asp-prod`, SKU: **B1**, used for compute resources for backend and frontend.                 |
-| **PostgreSQL database**              | `makenna-db-prod`, hosted on `makenna-dbsrv-prod` with admin identity and AAD authentication enabled. |
-| **Static website**                   | `makenna-fe-prod`, hosted in the same `App Service Plan` as the backend.                              |
-| **Azure Container Registry**         | `makennaacrprod`, stores backend container images. Admin credentials securely stored in Key Vault.     |
-| **Key Vault**                        | `makenna-keyvault-prod`, stores sensitive credentials like ACR admin credentials and PostgreSQL users.|
-| **Log Analytics Workspace**          | Used for monitoring and collecting log data for resources in the production environment.               |
-| **Application Insights**             | Configured for backend and frontend App Services to monitor application performance and diagnose issues. |
+| **Azure Infra Service**        | **Configurations**                                                                                      |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| **GitHub**                     | Triggers deployments via `push` or `workflow_dispatch` (manually). Uses separate `RESOURCE_GROUP_PROD`. |
+| **App Service for containers** | `makenna-be-prod`, connected to the ACR for pulling the backend container image securely.                   |
+| **App Service Plan**           | `makenna-asp-prod`, SKU: **B1**, used for compute resources for backend and frontend.                 |
+| **PostgreSQL database**        | `makenna-db-prod`, hosted on `makenna-dbsrv-prod` with admin identity and AAD authentication enabled.     |
+| **Static website**             | `makenna-fe-prod`, hosted in the same `App Service Plan` as the backend.                                  |
+| **Azure Container Registry**   | `makennaacrprod`, stores backend container images. Admin credentials securely stored in Key Vault.          |
+| **Key Vault**                  | `makenna-keyvault-prod`, stores sensitive credentials like ACR admin credentials and PostgreSQL users.      |
+| **Log Analytics Workspace**    | Used for monitoring and collecting log data for resources in the production environment.                      |
+| **Application Insights**       | Configured for backend and frontend App Services to monitor application performance and diagnose issues.      |
 
 ### Well-Architected Framework
 
@@ -310,11 +316,251 @@ Continuous performance reviews, underpinned by the dashboards and alerts, ensure
 
 #### Security
 
-https://learn.microsoft.com/en-us/devops/devsecops/enable-devsecops-azure-github#secure-your-code-with-github
-https://learn.microsoft.com/en-us/devops/devsecops/enable-devsecops-azure-github#secure-your-code-with-github
-https://best.openssf.org/Concise-Guide-for-Developing-More-Secure-Software
+Our application was developed following DevSecOps principles, therefore, plenty of security decisions were taken into account when designing Star Bank.
+
+We can divide these design decisions into 3 parts:
+
+- Code Hardening Strategy
+- Container Registry Credentials Protection
+- Adopted OpenSSF / SAFECode Frameworks Principles
+
+**Code Hardening Strategy**
+
+**Branch Protection Rules**
+We enforce branch protection rules to ensure that all changes to the main branch are reviewed and approved by designated code owners. This helps maintain code quality and prevents unauthorized changes.
+
+**CODEOWNERS**
+The CODEOWNERS file is used to define the individuals or teams responsible for specific files or directories within the repository. This ensures that code changes are reviewed by the appropriate experts, enhancing code quality and security.
+https://github.com/Star-Bank-Project/ie-bank-fe-2024/blob/main/.github/CODEOWNERS
+https://github.com/Star-Bank-Project/ie-bank-be-2024/blob/main/.github/CODEOWNERS
+https://github.com/Star-Bank-Project/ie-bank-infra-2024/blob/main/.github/CODEOWNERS
+
+**Dependabot**
+Dependabot is configured to automatically check for updates to our dependencies. It creates pull requests to update dependencies to the latest versions, ensuring that we are protected against known vulnerabilities and benefiting from the latest features and fixes.
+https://github.com/Star-Bank-Project/ie-bank-fe-2024/blob/main/.github/dependabot.yml
+https://github.com/Star-Bank-Project/ie-bank-be-2024/blob/main/.github/dependabot.yml
+https://github.com/Star-Bank-Project/ie-bank-infra-2024/blob/main/.github/dependabot.yml
+
+**OpenSSF Scorecard**
+The OpenSSF Scorecard is used to assess the security posture of our repository. It runs automated checks to evaluate various security best practices and generates a scorecard report. This helps us identify and address potential security issues.
+https://github.com/Star-Bank-Project/ie-bank-fe-2024/blob/main/.github/workflows/scorecard.yml
+https://github.com/Star-Bank-Project/ie-bank-be-2024/blob/main/.github/workflows/scorecard.yml
+https://github.com/Star-Bank-Project/ie-bank-infra-2024/blob/main/.github/workflows/scorecard.yml
+
+**Secret Scanning**
+GitHub Secret Scanning is enabled to automatically detect and prevent the accidental inclusion of sensitive information such as API keys, passwords, and other secrets in the codebase. This helps to prevent unauthorized access and potential security breaches.
+
+**Push Protection**
+Push Protection is configured to prevent the inclusion of sensitive information in the repository by blocking pushes that contain secrets. This adds an additional layer of security by ensuring that secrets are not exposed in the codebase.
+
+**Continuous Integration/Continuous Deployment (CI/CD)**
+Our GitHub Actions workflows include steps for linting, building, and deploying the code. This ensures that the code is tested and validated before being deployed to production environments.
+
+
+**Container Registry Credentials Protection**
+
+We use two bicep files to securely manage the container registry credentials:
+
+`acr.bicep`
+
+- This file defines the ACR resource and stores the ACR admin credentials in Azure Key Vault.
+- The credentials are dynamically fetched using the listCredentials function and stored as secrets in the Key Vault.
+
+The acr.bicep file is responsible for creating an Azure Container Registry (ACR) and securely storing its admin credentials in Azure Key Vault.
+
+1. Define Parameters: The script accepts parameters for the ACR name, location, Key Vault name, and secure parameters for the Key Vault secrets.
+
+```
+param name string
+param location string = resourceGroup().location
+param keyVaultName string
+@secure()
+param keyVaultSecretAdminUsername string
+@secure()
+param keyVaultSecretAdminPassword0 string
+@secure()
+param keyVaultSecretAdminPassword1 string
+```
+
+2. Create ACR Resource: The ACR resource is created with the adminUserEnabled property set to true, which allows the ACR to generate admin credentials.
+
+```
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
+  name: name
+  location: location
+  sku: {
+    name: 'Basic'
+  }
+  properties: {
+    adminUserEnabled: true
+  }
+}
+```
+
+3. Reference Existing Key Vault:
+   The script references an existing Key Vault where the ACR credentials will be stored.
+
+```
+resource adminCredentialsKeyVault 'Microsoft.KeyVault/vaults@2021-10-01' existing = {
+  name: keyVaultName
+  scope: resourceGroup()
+}
+```
+
+4. Store ACR Credentials in Key Vault: The ACR admin username and passwords are retrieved using the listCredentials function and stored as secrets in the Key Vault.
+
+```
+resource secretAdminUserName 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+  name: keyVaultSecretAdminUsername
+  parent: adminCredentialsKeyVault
+  properties: {
+    value: containerRegistry.listCredentials().username
+  }
+}
+```
+
+```
+resource secretAdminUserPassword0 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+  name: keyVaultSecretAdminPassword0
+  parent: adminCredentialsKeyVault
+  properties: {
+    value: containerRegistry.listCredentials().passwords[0].value
+  }
+}
+```
+
+```
+resource secretAdminUserPassword1 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+  name: keyVaultSecretAdminPassword1
+  parent: adminCredentialsKeyVault
+  properties: {
+    value: containerRegistry.listCredentials().passwords[1].value
+  }
+}
+```
+
+5. Output ACR Name: The script outputs the name of the ACR for reference.
+
+```
+output containerRegistryName string = containerRegistry.name
+```
+
+`app-service-container.bicep`
+
+- This file configures the backend App Service to use the ACR credentials stored in the Key Vault, ensuring secure access to the container images.
+- The credentials are retrieved using the getSecret function.
+
+The `app-service-container.bicep` file configures an Azure App Service to use the ACR credentials stored in the Key Vault.
+
+1. Define Parameters: The script accepts parameters for the App Service configuration, including secure parameters for the ACR credentials.
+
+```
+param location string = resourceGroup().location
+param name string
+param appServicePlanId string
+param dockerRegistryName string
+@secure()
+param dockerRegistryServerUserName string
+@secure()
+param dockerRegistryServerPassword string
+param dockerRegistryImageName string
+param dockerRegistryImageVersion string = 'latest'
+param appSettings array = []
+param appCommandLine string = ''
+```
+
+2. Define Docker App Settings: The script defines the Docker-related app settings, including the ACR URL, username, and password.
+
+```
+var dockerAppSettings = [
+  { name: 'DOCKER_REGISTRY_SERVER_URL', value: 'https://${dockerRegistryName}.azurecr.io' }
+  { name: 'DOCKER_REGISTRY_SERVER_USERNAME', value: dockerRegistryServerUserName }
+  { name: 'DOCKER_REGISTRY_SERVER_PASSWORD', value: dockerRegistryServerPassword }
+]
+```
+
+3. Create App Service Resource: The App Service resource is created with a system-assigned managed identity. The Docker-related app settings are included in the site configuration.
+
+```
+resource appServiceApp 'Microsoft.Web/sites@2022-03-01' = {
+  name: name
+  location: location
+  identity: { type: 'SystemAssigned' }
+  properties: {
+    serverFarmId: appServicePlanId
+    httpsOnly: true
+    siteConfig: {
+      linuxFxVersion: 'DOCKER|${dockerRegistryName}.azurecr.io/${dockerRegistryImageName}:${dockerRegistryImageVersion}'
+      alwaysOn: false
+      ftpsState: 'FtpsOnly'
+      appCommandLine: appCommandLine
+      appSettings: union(appSettings, dockerAppSettings)
+    }
+  }
+}
+```
+
+4. Output App Service Information: The script outputs the hostname of the App Service and the principal ID of the system-assigned identity.
+
+```
+output appServiceBackendHostName string = appServiceApp.properties.defaultHostName
+output systemAssignedIdentityPrincipalId string = appServiceApp.identity.principalId
+```
+
+**Adopted OpenSSF / SAFECode Frameworks Principles**
+
+OpenSSF and SAFECode are security frameworks that ennumerate several concrete best-practices (principles) to ensure the safety of an application. We chose several principles for each framework.
+
+**OpenSSF**
+1. Ensure all privileged developers use multi-factor authentication (MFA) tokens. This includes those with commit or accept privileges. MFA hinders attackers from “taking over” these accounts.
+
+7. Monitor known vulnerabilities in your software’s direct & indirect dependencies. (E.g., enable basic scanning via GitHub’s Dependabot)
+
+![1733689413259](image/index/1733689413259.png)
+
+8. Keep dependencies reasonably up-to-date. Otherwise, it’s hard to update for vulnerabilities.
+
+9. Do not push secrets to a repository. Use tools to detect pushing secrets to a repository.
+
+![1733689437913](image/index/1733689437913.png)
+
+10. Review before accepting changes. Enforce this, e.g., using GitHub or GitLab protected branches or an equivalent GitHub ruleset.
+
+![1733689457560](image/index/1733689457560.png)
+
+**SAFECode**
+
+**Standardize Identity and Access Management:**
+Azure Active Directory (AAD) Authentication:
+- The postgre-sql-server.bicep file configures AAD authentication for the PostgreSQL server.
+- The postgreSQLAdministrators resource assigns a service principal as an administrator for the PostgreSQL server.
+
+Role-Based Access Control (RBAC):
+- The keyVault.bicep file assigns roles to principals using the Microsoft.Authorization/roleAssignments resource.
+- The roleAssignments parameter in the main.bicep file allows specifying roles for different principals.
+
+Managed Identities:
+- The app-service-container.bicep file creates a system-assigned managed identity for the App Service.
+- This managed identity is used to access other Azure resources securely.
+
+Key Vault Integration:
+- Secrets such as database credentials and ACR credentials are stored in Azure Key Vault.
+- The acr.bicep file stores ACR admin credentials in Key Vault.
+- The app-service-container.bicep file retrieves secrets from Key Vault for secure configuration.
+
+**Encryption**
+
+- Azure Key Vault: The project uses Azure Key Vault to store sensitive information such as ACR admin credentials and database credentials. Key Vault ensures that these secrets are stored securely and are encrypted at rest.
+- Secure Parameters: In the Bicep files, parameters such as acrAdminPassword0, acrAdminPassword1, dockerRegistryServerUserName, and dockerRegistryServerPassword are marked as secure (@secure()). This ensures that these values are handled securely during deployment.
+- Database Credentials: The PostgreSQL server configuration includes an administrator login and password, which are encrypted.
+
+**Use of Safe Functions**
+- CodeQL: Runs a set of predefined queries to detect common security issues, including the use of unsafe functions.
+- Dependabot: Checks the dependencies against a vulnerability database (like the GitHub Advisory Database). If a vulnerability is found, Dependabot raises an alert and can automatically create pull requests to update the affected dependencies to a secure version.
+
 
 #### Cost Optimization
+
 - Burstable SKU for PostgreSQL Server: This setting configures the PostgreSQL server with the Standard_B1ms SKU, a burstable VM type (meaning that the server can “burst” to higher levels to support occasional spikes in usage). This setup optimizes costs by allocating resources dynamically.
 - Basic SKU for Azure Container Registry: The ACR's SKU is set to Basic in the dev and UAT environments, which reduces costs for non-critical workloads while still supporting required container operations.
 - Environment-Specific Parameters: Beneficial because it allows environment specific parameters to ensure that non-production environments use less expensive resources, (ex: flask_debug is set to 0 in non production environments) while still offering flexibility in the prod environment.
@@ -336,12 +582,6 @@ https://best.openssf.org/Concise-Guide-for-Developing-More-Secure-Software
 ## Software Design & Planning
 
 ### Release Strategy Design
-The release strategy follows a DTAP (Development, Testing, Acceptance, and Production) environment approach. Each environment is managed separately, leveraging Azure services to ensure proper isolation and scalability. GitHub Actions have been configured to handle CI/CD for development, UAT, and production workflows. The strategy ensures:
-
-Development branch triggers deployment to the DEV environment.
-Pull requests to the main branch deploy to UAT.
-Successful merges into the main branch trigger production deployments.
-The strategy also incorporates Test-Driven Development (TDD) principles to validate functionality before integration, ensuring quality and robustness at every stage.
 
 The release strategy follows a DTAP (Development, Testing, Acceptance, and Production) environment approach. Each environment is managed separately, leveraging Azure services to ensure proper isolation and scalability. GitHub Actions have been configured to handle CI/CD for development, UAT, and production workflows. The strategy ensures:
 
@@ -353,12 +593,12 @@ The strategy also incorporates Test-Driven Development (TDD) principles to valid
 ### CI/CD Pipeline and Release Strategy
 
 #### Git feature branch strategy
+
 - The startegy adopted for both Backend and Frontend focused on the implementation of short-lived feauture branches derived from the main branch. This helped managing updates to the code and better understanding and debugging of code due to its modular nature, as each feature, user story or task was done on seperate branches. After checking that the workflow actions fully deploy and work, a pull request is made, where two reviewers are called to give their approval for the merging to the main branch.
 - Examples:
 
-  - backend had branches called containerization, one called backendci (here the implementation of backed CI/CD was implemented), ayacibe (where another approach to CI/CD was implemnted) and prodcicd (where the variables and parameters to integrate and deploy the backend in the Production resource group)
-  - frontend had two branches for the CI/CD with two different approaches (ayacife and ciayafe), and three branches where errors were fixed called ayanew, fixingfe and null-cookie-fix. And one last one called prod where the yml file was changed to integrate and deploy in the production environment.
-
+  - backend had branches called containerization, one called `backendci` (here the implementation of backed CI/CD was implemented), ayacibe (where another approach to CI/CD was implemnted) and prodcicd (where the variables and parameters to integrate and deploy the backend in the Production resource group)
+  - frontend had two branches for the CI/CD with two different approaches (ayacife and ciayafe), and three branches where errors were fixed called `ayanew`, `fixingfe` and `null-cookie-fix`. And one last one called prod where the yml file was changed to integrate and deploy in the production environment.
 
 #### Frontend
 
@@ -367,21 +607,15 @@ The strategy also incorporates Test-Driven Development (TDD) principles to valid
 The CI pipeline is in charge of development and integration as well as verification of the rest API implementation for the respective Vue.js based frontend applications.
 
 1. Dependency Installation:
-   The jobs start with installing all required dependencies in a clean, consistent environment using `npm ci`. Then it ensure that all packages and dependicies are conssitent with what was outlined in the package-lock.json where version of the dependencies were defined.
+   the jobs start with installing all required dependencies in a clean, consistent environment using `npm ci`. Then it ensure that all packages and dependicies are conssitent with what was outlined in the `package-lock.json` where version of the dependencies were defined.
 2. Build Verification:
    This job is split into three parts for the three environments (DEV, UAT, PROD) and ensures that it compiles correctly
 3. Linting:
    Executes npm run lint to perform static code analysis and enforce coding standards, reducing errors and maintaining code consistency.
 4. Artifact Upload:
-   This part Uploads the compiled build artifacts (e.g., dist-dev or dist-uat) as deployable outputs for the CD pipeline.
+   This part Uploads the compiled build artifacts (e.g., `dist-dev` or `dist-uat`) as deployable outputs for the CD pipeline.
 
 **CD Description**
-
-The CD pipeline deploys built artifacts to the respective Azure environments:
-
-Artifact Download: Downloads the prepared build artifacts.
-Azure Login: Authenticates with Azure using a service principal.
-Deployment: Deploys the frontend to the static web app service for DEV or UAT, depending on the trigger.
 
 After the CI were building jobs are executed to build in the correct environment, an artifact is then uploaded and deployed in the respective Azure environments, this execution follows the following steps:
 
@@ -398,7 +632,7 @@ After the CI were building jobs are executed to build in the correct environment
 The backend CI pipeline validates the Flask-based API, as defined in ie-bank-backend.yml. Key steps include:
 
 1. Environment Setup:
-   Using pip install all python dependencies which are defined in the requirements.txt are to be installed. then the 3 environemnt and their appropriate variables (`BACKEND_WEBAPP`, `DOCKER_REGISTRY_SERVER_URL`, `IMAGE_NAME`, `KEY_VAULT_NAME`) are defined for all environemnts.
+   Using `pip install` all python dependencies which are defined in the requirements.txt are to be installed. then the 3 environemnt and their appropriate variables (`BACKEND_WEBAPP `, `DOCKER_REGISTRY_SERVER_URL `, `IMAGE_NAME `, `KEY_VAULT_NAME`) are defined for all environemnts.
 2. Static Analysis:
    flake8 is implemnetd to enforce Python coding standards and catching potential bugs or syntax issues early.
 3. Unit Testing:
@@ -415,25 +649,7 @@ As specified in `ie-bank-backend.yml`, the Flask based API is automated tested a
 3. Unit and Functional Testing:
    Executes pytest for unit and functional tests to validate core API functionality, using a PostgreSQL test database defined in the workflow.
 4. Coverage Reports:
-   after testing the coverage reports are then geneated and uploaded using pytest-cov, ensuring all critical code paths are tested.
-
-As specified in ie-bank-backend.yml, the Flask based API is automated tested at this point. The key steps include:
-
-1. Environment Setup:
-Using pip install all python dependencies which are defined in the requirements.txt are to be installed. then the 3 environemnt and their appropriate variables (BACKEND_WEBAPP, DOCKER_REGISTRY_SERVER_URL, IMAGE_NAME, KEY_VAULT_NAME) are defined for all environemnts. 
-
-2. Static Analysis:
-flake8 is implemnetd to enforce Python coding standards and catching potential bugs or syntax issues early.
-
-3. Unit and Functional Testing:
-Executes pytest for unit and functional tests to validate core API functionality, using a PostgreSQL test database defined in the workflow.
-
-4. Coverage Reports:
-after testing the coverage reports are then geneated and uploaded using pytest-cov, ensuring all critical code paths are tested.
-
-Fixed Issues:
-  
-  - Enhanced test reliability by mocking dependencies and isolating tests.
+   after testing the coverage reports are then geneated and uploaded using `pytest-cov`, ensuring all critical code paths are tested.
 
 **CD Description**
 
@@ -450,8 +666,7 @@ The CD pipeline focuses on the containerization of the backend as a docker conta
 2. Push to Container Registry in Azure:
    Publishes the Docker images to Azure Container Registry for centralized storage and secure access.
 3. App Service Deployment:
-   Deploys the backend containers to Azure App Services using the Azure CLI (az webapp create and az webapp config) or GitHub actions for streamlined deployment.
-
+   Deploys the backend containers to Azure App Services using the Azure CLI (`az webapp create` and `az webapp config`) or GitHub actions for streamlined deployment.
 
 #### Test/behavior driven development strategy
 
@@ -459,8 +674,8 @@ The implemented Test/Behavior Driven Development (TDD) strategy helps to address
 
 The designed tests cover relevant areas of the backend which include:
 
-1. Functional Tests: Validate essential features which the end user uses, like account balance operations (test_get_accounts) and new account registration (test_create_account). Also, non working links are tested, for example, test_dummy_wrong_path, to check how the API responds when it is fed text other than what it was intended for.
-2. Unit Tests: Evaluate key parts of the backend, such as basic operations of the database model through the test_create_account test_case located in the test_model.py file to assist in future changes in the backend in respect to data.
+1. Functional Tests: Validate essential features which the end user uses, like account balance operations (`test_get_accounts`) and new account registration (`test_create_account`). Also, non working links are tested, for example, test_dummy_wrong_path, to check how the API responds when it is fed text other than what it was intended for.
+2. Unit Tests: Evaluate key parts of the backend, such as basic operations of the database model through the `test_create_account` `test_case `located in the `test_model.py `file to assist in future changes in the backend in respect to data.
 
 The tests were run on pytest and a comprehensive test coverage report was produced. From the segregation of codes, it is observed that the quality of the functionality has been stressed while certain parts like the routes.py file can be improved because at the moment it has been only partially tested. This conforms to the iterative nature of TDD where tests are written first for the most critical code paths.
 
@@ -481,26 +696,28 @@ This approach, combining inner and outer loop strategies, provide an end to end 
 ### Use Cases and Sequential Model Design
 
 #### Registration
+
 ![1733680707322](image/index/1733680707322.png)
 
 #### Login
+
 ![1733680683517](image/index/1733680683517.png)
 
 #### Transaction
+
 ![1733680694511](image/index/1733680694511.png)
 
 ### Entity Relationship Diagram
+
 ![1733599437329](image/index/1733599437329.png)
 
 *Figure #. Entity Relationship Diagram*
 
-[Entity Relationship Design](docs/image/index/Entity_Relationship_Diagram.png)
-
 ### Data Flow Diagram
+
 ![1733598987314](image/index/1733598987314.png)
 
 *Figure #. Data Flow Diagram*
-
 
 ### 12 Factor App Design
 
@@ -531,11 +748,12 @@ This approach, combining inner and outer loop strategies, provide an end to end 
 
 ### Infrastructure Release Strategy
 
-Our infrastructure release strategy ensures a streamlined and automated approach to managing infrastructure deployments across environments thanks to the CI/CD approach and GitHub actions. The CI workflow is delineated in the ie-bank-infra.yml file. It ensures that the infrastructure code is validated and linted whenever changes are pushed to the repository or a pull request is created. This ensures that any syntax or structural errors in the Bicep templates are caught early in the development lifecycle. The CD workflow is delineated in the ie-bank-infra.yml file. It automates the deployment of infrastructure to different environments. We have an environment specific strategy, where the dev environment experiences frequent deployments to test and validate changes in the initial stages of development, the UAT environment is only deployed when a branch is merged to main, and the production environment is only deployed when all checks and validations are passed. 
+Our infrastructure release strategy ensures a streamlined and automated approach to managing infrastructure deployments across environments thanks to the CI/CD approach and GitHub actions. The CI workflow is delineated in the `ie-bank-infra.yml` file. It ensures that the infrastructure code is validated and linted whenever changes are pushed to the repository or a pull request is created. This ensures that any syntax or structural errors in the Bicep templates are caught early in the development lifecycle. The CD workflow is delineated in the `ie-bank-infra.yml file`. It automates the deployment of infrastructure to different environments. We have an environment specific strategy, where the dev environment experiences frequent deployments to test and validate changes in the initial stages of development, the UAT environment is only deployed when a branch is merged to main, and the production environment is only deployed when all checks and validations are passed.
 
-This automatched deployment approach is beneficial because it minimizes manual errors, ensures consistency across environments. 
+This automatched deployment approach is beneficial because it minimizes manual errors, ensures consistency across environments.
 
 ### Documented User Stories
+
 #### Default Admin Account Setup
 
 - **Description:** As a bank administrator, I want to use a default admin account to log into the system so that I can access the user management portal immediately after setup.

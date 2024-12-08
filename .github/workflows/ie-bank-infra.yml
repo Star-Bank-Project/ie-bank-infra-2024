@@ -1,134 +1,161 @@
 name: star-bank-infra
 
 on:
-  workflow_dispatch: # Allows you to manually trigger the workflow from the GitHub Actions tab.
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
   push:
     branches:
-      - '*'  # Trigger on any branch push
+      - '*'
     paths-ignore:
-      - 'scripts/**'  # Ignore changes in the `scripts` directory
+      - 'scripts/**'
 
 env:
   RESOURCE_GROUP_DEV: BCSAI2024-DEVOPS-STUDENTS-B-DEV
   RESOURCE_GROUP_UAT: BCSAI2024-DEVOPS-STUDENTS-B-UAT
   RESOURCE_GROUP_PROD: BCSAI2024-DEVOPS-STUDENTS-B-PROD
-  SUBSCRIPTION_ID_DEV: e0b9cada-61bc-4b5a-bd7a-52c606726b3b
+  SUBSCRIPTION_ID: e0b9cada-61bc-4b5a-bd7a-52c606726b3b
   USER_ALIAS: makenna
 
 jobs:
+  validate_dev:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Run preflight validation
+      uses: azure/arm-deploy@v1
+      with:
+        subscriptionId: ${{ env.SUBSCRIPTION_ID }}
+        resourceGroupName: ${{ env.RESOURCE_GROUP_DEV }}
+        template: ./main.bicep
+        parameters: ./parameters/dev.parameters.json
+        deploymentMode: Validate
+
+  validate_uat:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Run preflight validation
+      uses: azure/arm-deploy@v1
+      with:
+        subscriptionId: ${{ env.SUBSCRIPTION_ID }}
+        resourceGroupName: ${{ env.RESOURCE_GROUP_UAT }}
+        template: ./main.bicep
+        parameters: ./parameters/uat.parameters.json
+        deploymentMode: Validate
+
+  validate_prod:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Run preflight validation
+      uses: azure/arm-deploy@v1
+      with:
+        subscriptionId: ${{ env.SUBSCRIPTION_ID }}
+        resourceGroupName: ${{ env.RESOURCE_GROUP_PROD }}
+        template: ./main.bicep
+        parameters: ./parameters/prod.parameters.json
+        deploymentMode: Validate
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Run Bicep linter
+      run: az bicep build --file ./main.bicep --only-show-errors --output json
+
   build:
     runs-on: ubuntu-latest
     steps:
-
-      # Checkout code
-      - uses: actions/checkout@v4
-
-      # Lint Bicep code
-      - name: Run Bicep linter
-        run: az bicep build --file ./main.bicep
-
-      # Upload Bicep build artifact
-      - name: Upload Bicep build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: bicep-build
-          path: ./main.bicep  # Adjust this path as necessary for your build output
+    - uses: actions/checkout@v3
+    - name: Run Checkov
+      uses: bridgecrewio/checkov-action@master
+      with:
+        directory: './'
+        file: 'main.bicep'
+      continue-on-error: true
+    - name: Upload Bicep build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: bicep-build
+        path: ./main.bicep
 
   deploy-dev:
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    if: github.ref != 'refs/heads/main' && github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, lint, validate_dev]
     environment:
       name: 'Development'
 
     steps:
-      # Checkout code
-      - uses: actions/checkout@v4
-
-      # Download Bicep build artifact
-      - name: Download Bicep build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: bicep-build
-
-      # Log into Azure
-      - uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      # Deploy Bicep file
-      - name: Deploy Application Insights, Log Analytics, and Workbook to Dev
-        uses: azure/arm-deploy@v2
-        with:
-          scope: resourcegroup
-          subscriptionId: ${{ env.SUBSCRIPTION_ID_DEV }}
-          resourceGroupName: ${{ env.RESOURCE_GROUP_DEV }}
-          template: ./main.bicep
-          parameters: ./parameters/dev.parameters.json
-          deploymentName: starbank-dev
+    - uses: actions/checkout@v3
+    - uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Deploy Infrastructure (Dev)
+      uses: azure/arm-deploy@v1
+      with:
+        subscriptionId: ${{ env.SUBSCRIPTION_ID }}
+        resourceGroupName: ${{ env.RESOURCE_GROUP_DEV }}
+        template: ./main.bicep
+        parameters: ./parameters/dev.parameters.json
+        deploymentName: starbank-dev
+        failOnStdErr: false
 
   deploy-uat:
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    if: github.event.pull_request.base.ref == 'main' || github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, lint, validate_uat]
     environment:
       name: 'UAT'
 
     steps:
-      # Checkout code
-      - uses: actions/checkout@v4
-
-      # Download Bicep build artifact
-      - name: Download Bicep build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: bicep-build
-
-      # Log into Azure
-      - uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      # Deploy Bicep file
-      - name: Deploy Application Insights, Log Analytics, and Workbook to UAT
-        uses: azure/arm-deploy@v2
-        with:
-          scope: resourcegroup
-          subscriptionId: ${{ env.SUBSCRIPTION_ID_DEV }}
-          resourceGroupName: ${{ env.RESOURCE_GROUP_UAT }}
-          template: ./main.bicep
-          parameters: ./parameters/uat.parameters.json
-          deploymentName: starbank-uat
+    - uses: actions/checkout@v3
+    - name: Download Bicep build artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: bicep-build
+    - uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Deploy Infrastructure (UAT)
+      uses: azure/arm-deploy@v1
+      with:
+        subscriptionId: ${{ env.SUBSCRIPTION_ID }}
+        resourceGroupName: ${{ env.RESOURCE_GROUP_UAT }}
+        template: ./main.bicep
+        parameters: ./parameters/uat.parameters.json
+        deploymentName: starbank-uat
+        failOnStdErr: false
 
   deploy-prod:
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, lint, validate_prod, deploy-uat]
     environment:
       name: 'Production'
 
     steps:
-      # Checkout code
-      - uses: actions/checkout@v4
-
-      # Download Bicep build artifact
-      - name: Download Bicep build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: bicep-build
-
-      # Log into Azure
-      - uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      # Deploy Bicep file
-      - name: Deploy Application Insights, Log Analytics, and Workbook to Prod
-        uses: azure/arm-deploy@v2
-        with:
-          scope: resourcegroup
-          subscriptionId: ${{ env.SUBSCRIPTION_ID_DEV }}
-          resourceGroupName: ${{ env.RESOURCE_GROUP_PROD }}
-          template: ./main.bicep
-          parameters: ./parameters/prod.parameters.json
-          deploymentName: starbank-prod
+    - uses: actions/checkout@v3
+    - uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Deploy Infrastructure (Prod)
+      uses: azure/arm-deploy@v1
+      with:
+        subscriptionId: ${{ env.SUBSCRIPTION_ID }}
+        resourceGroupName: ${{ env.RESOURCE_GROUP_PROD }}
+        template: ./main.bicep
+        parameters: ./parameters/prod.parameters.json
+        deploymentName: starbank-prod
+        failOnStdErr: false

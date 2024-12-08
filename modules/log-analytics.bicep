@@ -1,8 +1,8 @@
-@description('Log Analytics workspace name')
-param name string 
-
-@description('Azure location for the resources to deploy')
+@description('Deployment location for the resource group')
 param location string = resourceGroup().location
+
+@description('The name of the Log Analytics workspace to be created')
+param name string
 
 @description('Retention period for Log Analytics workspace in days')
 @minValue(7)
@@ -14,14 +14,11 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-08
   location: location
   properties: {
     sku: {
-      name: 'PerGB2018'  // Default pricing tier; adjust if needed
+      name: 'PerGB2018'
     }
-    retentionInDays: retentionInDays  // Customizable retention period
+    retentionInDays: retentionInDays
   }
 }
 
-// Outputs for integration with other resources
 output logAnalyticsWorkspaceId string = logAnalyticsWorkspace.id
 output logAnalyticsWorkspaceName string = logAnalyticsWorkspace.name
-output logAnalyticsWorkspaceResourceGroup string = resourceGroup().name
-output logAnalyticsWorkspaceLocation string = logAnalyticsWorkspace.location

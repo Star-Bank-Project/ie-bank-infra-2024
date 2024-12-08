@@ -4,6 +4,7 @@
   'uat'
 ])
 param environmentType string
+
 @description('User alias for naming resources')
 param userAlias string
 
@@ -59,6 +60,13 @@ param logAnalyticsWorkspaceName string
 
 @description('Application Insights resource name')
 param appInsightsName string
+
+@description('Name of the Logic App for Slack alerts')
+param logicAppName string
+
+@description('Slack Webhook URL to send alerts')
+@secure()
+param slackWebhookUrl string
 
 /* Variables for Key Vault Secrets */
 var acrUsernameSecretName = 'acrAdminUsername'
@@ -153,7 +161,7 @@ resource keyVaultReference 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
   name: keyVaultName
 }
 
-/* BE */
+/* Backend App Service */
 module appServiceWebsiteBE './modules/app-service-container.bicep' = {
   name: 'appbe-${userAlias}'
   params: {
@@ -177,7 +185,7 @@ module appServiceWebsiteBE './modules/app-service-container.bicep' = {
   ]
 }
 
-/* App Service Frontend Module */
+/* Frontend App Service */
 module appServiceWebsiteFE './modules/app-service-website.bicep' = {
   name: 'appfe-${userAlias}'
   params: {
@@ -193,8 +201,21 @@ module appServiceWebsiteFE './modules/app-service-website.bicep' = {
   ]
 }
 
+/* Logic App for Slack Alerts */
+module logicApp './modules/logic-app.bicep' = {
+  name: 'logicApp-${userAlias}'
+  params: {
+    logicAppName: logicAppName
+    slackWebhookUrl: slackWebhookUrl
+  }
+  dependsOn: [
+    logAnalytics
+  ]
+}
+
 /* Outputs */
 output appServiceWebsiteBEHostName string = appServiceWebsiteBE.outputs.appServiceBackendHostName
 output appServiceWebsiteFEHostName string = appServiceWebsiteFE.outputs.appServiceAppHostName
 output logAnalyticsWorkspaceId string = logAnalytics.outputs.logAnalyticsWorkspaceId
-output appInsightsInstrumentationKey string = appInsights.outputs.instrumentationKey 
+output appInsightsInstrumentationKey string = appInsights.outputs.instrumentationKey
+output logicAppName string = logicAppName

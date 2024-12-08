@@ -9,8 +9,6 @@ param location string = resourceGroup().location
 @maxValue(730)
 param retentionInDays int = 30
 
-
-
 // Create the Log Analytics workspace
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
   name: name
@@ -31,11 +29,11 @@ resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-pr
     workspaceId: logAnalyticsWorkspace.id
     logs: [
       {
-        category: 'AuditLogs'
+        category: 'Administrative' // Supported category for many resources
         enabled: true
       }
       {
-        category: 'ActivityLogs'
+        category: 'ServiceHealth' // Example category, replace if not required
         enabled: true
       }
     ]

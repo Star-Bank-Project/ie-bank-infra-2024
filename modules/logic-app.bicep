@@ -14,7 +14,7 @@ resource logicApp 'Microsoft.Logic/workflows@2019-05-01' = {
   location: location
   properties: {
     state: 'Enabled'
-    definition: loadJsonContent('logicAppWorkflow.json') // Ensure 'logicAppWorkflow.json' contains valid JSON.
+    definition: loadJsonContent('./logicAppWorkflow.json') // Ensure 'logicAppWorkflow.json' contains valid JSON.
     parameters: {
       slackWebhookUrl: {
         value: slackWebhookUrl

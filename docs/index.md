@@ -89,8 +89,8 @@ To streamline the deployment and management of the infrastructure, we used the f
 | **Static website**                   | `makenna-fe-dev`, hosted in the same `App Service Plan` as the backend.                               |
 | **Azure Container Registry**         | `makennaacrdev`, stores backend container images. Admin credentials securely stored in Key Vault.     |
 | **Key Vault**                        | `makenna-keyvault-dev`, stores sensitive credentials like ACR admin credentials and PostgreSQL users. |
-| **Log Analytics Workspace**          | Used for monitoring and collecting log data for resources in the development environment. **(check w/SRE)**           |
-| **Application Insights**             | Configured for backend and frontend App Services to monitor application performance and diagnose issues. **(check w/SRE)**|
+| **Log Analytics Workspace**          | Used for monitoring and collecting log data for resources in the development environment.           |
+| **Application Insights**             | Configured for backend and frontend App Services to monitor application performance and diagnose issues. |
 
 ---
 
@@ -105,23 +105,24 @@ To streamline the deployment and management of the infrastructure, we used the f
 | **Static website**                   | `makenna-fe-uat`, hosted in the same `App Service Plan` as the backend.                               |
 | **Azure Container Registry**         | `makennaacruat`, stores backend container images. Admin credentials securely stored in Key Vault.     |
 | **Key Vault**                        | `makenna-keyvault-uat`, stores sensitive credentials like ACR admin credentials and PostgreSQL users. |
-| **Log Analytics Workspace**          | Used for monitoring and collecting log data for resources in the user acceptance testing environment.**(check w/SRE)** |
-| **Application Insights**             | Configured for backend and frontend App Services to monitor application performance and diagnose issues. **(check w/SRE)**|
+| **Log Analytics Workspace**          | Used for monitoring and collecting log data for resources in the user acceptance testing environment. |
+| **Application Insights**             | Configured for backend and frontend App Services to monitor application performance and diagnose issues.|
 
 
-#### Production Environment (PROD)
+### **Production Environment (PROD)**
 
-| Azure Infra Service                  | Configurations |
-| ------------------------------------ | -------------- |
-| **GitHub**                     |                |
-| **App Service for containers** |                |
-| **App Service Plan**           |                |
-| **PostgreSQL database**        |                |
-| **Static website**             |                |
-| **Azure Container Registry**   |                |
-| **Key Vault**                  |                |
-| **Log Analytics Workspace**    |                |
-| **Application Insights**       |                |
+| **Azure Infra Service**              | **Configurations**                                                                                  |
+|------------------------------------- |-----------------------------------------------------------------------------------------------------|
+| **GitHub**                           | Triggers deployments via `push` or `workflow_dispatch` (manually). Uses separate `RESOURCE_GROUP_PROD`. |
+| **App Service for containers**       | `makenna-be-prod`, connected to the ACR for pulling the backend container image securely.              |
+| **App Service Plan**                 | `makenna-asp-prod`, SKU: **B1**, used for compute resources for backend and frontend.                 |
+| **PostgreSQL database**              | `makenna-db-prod`, hosted on `makenna-dbsrv-prod` with admin identity and AAD authentication enabled. |
+| **Static website**                   | `makenna-fe-prod`, hosted in the same `App Service Plan` as the backend.                              |
+| **Azure Container Registry**         | `makennaacrprod`, stores backend container images. Admin credentials securely stored in Key Vault.     |
+| **Key Vault**                        | `makenna-keyvault-prod`, stores sensitive credentials like ACR admin credentials and PostgreSQL users.|
+| **Log Analytics Workspace**          | Used for monitoring and collecting log data for resources in the production environment.               |
+| **Application Insights**             | Configured for backend and frontend App Services to monitor application performance and diagnose issues. |
+
 
 ### Well-Architected Framework
 

@@ -8,6 +8,9 @@
     "dockerRegistryImageName": {
       "value": "my-container-image"
     },
+    "dockerRegistryImageVersion": {
+      "value": "latest"
+    },
     "userAlias": {
       "value": "makenna"
     },
@@ -18,10 +21,10 @@
       "value": "acrAdminUsername"
     },
     "acrAdminPassword0": {
-      "value": "acrAdminPassword0" 
+      "value": "acrAdminPassword0"
     },
     "acrAdminPassword1": {
-      "value": "acrAdminPassword1" 
+      "value": "acrAdminPassword1"
     },
     "keyVaultName": {
       "value": "makenna-keyvault-uat"
@@ -89,6 +92,12 @@
           "principalType": "Group"
         }
       ]
+    },
+    "logAnalyticsWorkspaceName": {
+      "value": "makenna-logAnalyticsWorkspace-uat"
+    },
+    "appInsightsName": {
+      "value": "makenna-appInsights-uat"
     }
   }
 }

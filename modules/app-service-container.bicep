@@ -10,17 +10,24 @@ param dockerRegistryImageName string
 param dockerRegistryImageVersion string = 'latest'
 param appSettings array = []
 param appCommandLine string = ''
+param logAnalyticsWorkspaceId string
+@description('The Application Insights Instrumentation Key for monitoring and logging.')
+param appInsightsInstrumentationKey string
 
 var dockerAppSettings = [
   { name: 'DOCKER_REGISTRY_SERVER_URL', value: 'https://${dockerRegistryName}.azurecr.io' }
   { name: 'DOCKER_REGISTRY_SERVER_USERNAME', value: dockerRegistryServerUserName }
   { name: 'DOCKER_REGISTRY_SERVER_PASSWORD', value: dockerRegistryServerPassword }
-  ]
+]
+
+var monitoringAppSettings = [
+  { name: 'APPINSIGHTS_INSTRUMENTATIONKEY', value: appInsightsInstrumentationKey }
+]
 
 resource appServiceApp 'Microsoft.Web/sites@2022-03-01' = {
   name: name
   location: location
-  identity: { type: 'SystemAssigned' } //this creates the system assigned identity
+  identity: { type: 'SystemAssigned' } // Creates the system-assigned identity
   properties: {
     serverFarmId: appServicePlanId
     httpsOnly: true
@@ -29,8 +36,23 @@ resource appServiceApp 'Microsoft.Web/sites@2022-03-01' = {
       alwaysOn: false
       ftpsState: 'FtpsOnly'
       appCommandLine: appCommandLine
-      appSettings: union(appSettings, dockerAppSettings)
+      appSettings: union(appSettings, dockerAppSettings, monitoringAppSettings)
     }
+  }
+}
+
+resource appServiceDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'appServiceDiagnostics'
+  scope: appServiceApp
+  properties: {
+    logs: [
+      { category: 'AppServiceHTTPLogs', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
+      { category: 'AppServiceConsoleLogs', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
+    ]
+    metrics: [
+      { category: 'AllMetrics', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
+    ]
+    workspaceId: logAnalyticsWorkspaceId
   }
 }
 

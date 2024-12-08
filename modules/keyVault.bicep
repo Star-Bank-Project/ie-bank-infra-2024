@@ -52,7 +52,7 @@ resource keyVaultDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-p
   scope: keyVault
   properties: {
     logs: [
-      { category: 'AuditEvent', enabled: true }
+      { category: 'AzureDiagnostics', enabled: true }
     ]
     metrics: [
       { category: 'AllMetrics', enabled: true }

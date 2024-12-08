@@ -3,7 +3,9 @@
   'prod'
   'uat'
 ])
+@description('The environment type for the deployment')
 param environmentType string
+
 @description('User alias for naming resources')
 param userAlias string
 
@@ -46,12 +48,12 @@ param dockerRegistryImageVersion string = 'latest'
 @description('Azure Container Registry admin username')
 param acrAdminUsername string
 
-@description('Azure Container Registry admin password 0')
 @secure()
+@description('Azure Container Registry admin password 0')
 param acrAdminPassword0 string
 
-@description('Azure Container Registry admin password 1')
 @secure()
+@description('Azure Container Registry admin password 1')
 param acrAdminPassword1 string
 
 @description('Log Analytics Workspace name')
@@ -60,8 +62,10 @@ param logAnalyticsWorkspaceName string
 @description('Application Insights resource name')
 param appInsightsName string
 
+@description('Logic App name for notifications')
 param logicAppName string
 
+@description('Slack Webhook URL for notifications')
 param slackWebhookUrl string
 
 /* Variables for Key Vault Secrets */
@@ -99,23 +103,21 @@ module acr './modules/acr.bicep' = {
     name: containerRegistryName
     location: location
     keyVaultName: keyVaultName
-    keyVaultSecretAdminUsername: acrAdminUsername
-    keyVaultSecretAdminPassword0: acrAdminPassword0
+    keyVaultSecretAdminUsername: acrUsernameSecretName
+    keyVaultSecretAdminPassword0: acrPassword0SecretName
     keyVaultSecretAdminPassword1: acrAdminPassword1
     logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
-    containerRegistryDiagnosticsName: logicAppName
   }
 }
 
 /* Key Vault Module */
 module keyVault './modules/keyVault.bicep' = {
-  name: 'keyVaultModule-${userAlias}'
+  name: 'keyVault-${userAlias}'
   params: {
     name: keyVaultName
     location: location
     enableVaultForDeployment: true
     roleAssignments: roleAssignments
-    logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
   }
 }
 
@@ -124,8 +126,8 @@ module postgresSQLServer './modules/postgre-sql-server.bicep' = {
   name: 'psqlsrv-${userAlias}'
   params: {
     name: postgreSQLServerName
-    postgreSQLAdminServicePrincipalObjectId: appServiceWebsiteBE.outputs.systemAssignedIdentityPrincipalId
-    postgreSQLAdminServicePrincipalName: appServiceWebsiteBEName
+    adminServicePrincipalObjectId: appServiceWebsiteBE.outputs.systemAssignedIdentityPrincipalId
+    adminServicePrincipalName: appServiceWebsiteBEName
     logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
   }
   dependsOn: [
@@ -151,16 +153,11 @@ module appServicePlan './modules/app-service-plan.bicep' = {
   params: {
     location: location
     appServicePlanName: appServicePlanName
-    skuName: (environmentType == 'prod') ? 'B1' : 'B1'
+    skuName: (environmentType == 'prod') ? 'P1v2' : 'B1'
   }
 }
 
-/* Key Vault Resource Reference */
-resource keyVaultReference 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
-  name: keyVaultName
-}
-
-/* BE */
+/* Backend App Service */
 module appServiceWebsiteBE './modules/app-service-container.bicep' = {
   name: 'appbe-${userAlias}'
   params: {
@@ -184,7 +181,7 @@ module appServiceWebsiteBE './modules/app-service-container.bicep' = {
   ]
 }
 
-/* App Service Frontend Module */
+/* Frontend App Service */
 module appServiceWebsiteFE './modules/app-service-website.bicep' = {
   name: 'appfe-${userAlias}'
   params: {
@@ -198,90 +195,6 @@ module appServiceWebsiteFE './modules/app-service-website.bicep' = {
   dependsOn: [
     appServicePlan
   ]
-}
-
-/* Application Insights Diagnostic Settings */
-resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-  name: 'DiagnosticSettings-${userAlias}'
-  scope: resourceGroup() // Attach to the resource group
-  properties: {
-    workspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
-    logs: [
-      {
-        category: 'ApplicationGatewayAccessLogs'
-        enabled: true
-      }
-      {
-        category: 'ApplicationGatewayPerformanceLogs'
-        enabled: true
-      }
-      {
-        category: 'Requests'
-        enabled: true
-      }
-    ]
-    metrics: [
-      {
-        category: 'AllMetrics'
-        enabled: true
-      }
-    ]
-  }
-}
-
-/* Metric Alert for API Response Time */
-resource apiResponseTimeAlert 'Microsoft.Insights/metricAlerts@2018-03-01' = {
-  name: 'APIResponseTimeAlert-${userAlias}'
-  location: 'global'
-  properties: {
-    description: 'Alert when API response time exceeds the threshold'
-    severity: 2
-    enabled: true
-    scopes: [
-      appInsights.outputs.appInsightsInstrumentationKey
-    ]
-    evaluationFrequency: 'PT1M'
-    windowSize: 'PT5M'
-    criteria: {
-      'odata.type': 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
-      allOf: [
-        {
-          name: 'APIResponseTime'
-          criterionType: 'StaticThresholdCriterion'
-          metricName: 'requests/duration'
-          operator: 'GreaterThan'
-          threshold: 5000 // Threshold for alert (e.g., 5000 ms or 5 seconds)
-          timeAggregation: 'Average'
-        }
-      ]
-    }
-    autoMitigate: true
-    actions: [
-      {
-        actionGroupId: logicAppActionGroup.id
-        webHookProperties: {
-          customMessage: 'API response time exceeded threshold.'
-        }
-      }
-    ]
-  }
-}
-
-/* Action Group for Alert Notification (Slack) */
-resource logicAppActionGroup 'Microsoft.Insights/actionGroups@2022-06-01' = {
-  name: 'Slack-Notification-ActionGroup'
-  location: 'global'
-  properties: {
-    groupShortName: 'SlackAlert'
-    enabled: true
-    webhookReceivers: [
-      {
-        name: 'SlackWebhook'
-        serviceUri: 'https://hooks.slack.com/services/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'  // Your Slack Webhook URL
-        useCommonAlertSchema: true
-      }
-    ]
-  }
 }
 
 /* Outputs */

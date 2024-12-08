@@ -275,14 +275,21 @@ Fixed Issues:
   - Adjusted vue.config.js for compatibility with development and UAT builds
 
 **CD Description**
-The CD pipeline deploys built artifacts to the respective Azure environments:
+After the CI were building jobs are executed to build in the correct environment, an artifact is then uploaded and deployed in the respective Azure environments, this execution follows the following steps:
 
-Artifact Download: Downloads the prepared build artifacts.
-Azure Login: Authenticates with Azure using a service principal.
-Deployment: Deploys the frontend to the static web app service for DEV or UAT, depending on the trigger.
-- Fixed Issues:
+1. Artifact Download:
+Downloads the prepared build artifacts.
 
-Proper artifact paths (dist-dev or dist-uat) ensured successful deployments without file-not-found errors.
+2. Azure Login:
+Authenticates to Azure using GitHub-provided credentials linked to a service principal.
+
+3. Deployment:
+Deploys the artifacts to Azure Static Web Apps using azure/static-web-apps-deploy action, targeting the appropriate environment (DEV or UAT or PROD) based on the branch.
+
+Fixed Issues:
+
+  - Proper artifact paths (dist-dev or dist-uat) ensured successful deployments without file-not-found errors.
+  - Enhanced configuration of Azure environments for seamless deployment, avoiding runtime error
 
 #### Backend
 
@@ -302,19 +309,27 @@ Coverage Reports:
 
 after testing the coverage reports are then geneated and uploaded using pytest-cov, ensuring all critical code paths are tested.
 
-- Fixed Issues:
+Fixed Issues:
   
   - Enhanced test reliability by mocking dependencies and isolating tests.
 
 **CD Description**
-The CD pipeline builds and deploys the Flask backend as a Docker container:
 
-Docker Build: Creates container images for DEV or UAT using environment-specific Dockerfiles.
-Push to Registry: Publishes images to Azure Container Registry.
-App Service Deployment: Deploys containers to Azure App Service.
-- Fixed Issues:
+The CD pipeline focuses on the containerization of the backend as a docker container and pushing it to the container registry in azure. it follows the outlines steps below:
 
-Fixed missing Dockerfiles and resolved registry authentication failures by retrieving credentials from Azure Key Vault.
+1. Docker Build:
+Uses environment-specific Dockerfiles to create container images tailored to DEV, UAT or PROD environment.
+
+2. Push to Container Registry in Azure:
+Publishes the Docker images to Azure Container Registry for centralized storage and secure access.
+
+3. App Service Deployment:
+Deploys the backend containers to Azure App Services using the Azure CLI (az webapp create and az webapp config) or GitHub actions for streamlined deployment.
+
+Fixed Issues:
+
+  - Addressed missing or misconfigured Dockerfiles by ensuring each environment's specific requirements were included.
+  - Resolved registry authentication failures by securely integrating Azure Key Vault credentials into the workflow.
 
 #### Test/behavior driven development strategy
 

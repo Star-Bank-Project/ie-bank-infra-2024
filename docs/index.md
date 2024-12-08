@@ -4,11 +4,13 @@
 
 ### Product Planning for Star Bank
 
-![1733686455384](image/index/1733686455384.png)
-
 #### Product Vision
 
 Create a seamless banking experience that empowers every user to easily manage their finances, ensuring efficiency, security, and user satisfaction.
+
+![1733686455384](image/index/1733686455384.png)
+
+_Figure 1. Product Vision Board_
 
 #### Product Mission
 
@@ -164,7 +166,7 @@ To provide users with an innovative, reliable, and secure banking platform, comb
 
 ![1733599072635](image/index/1733599072635.png)
 
-*Figure 1: Infrastructure Architechture Design*
+_Figure 2: Infrastructure Architechture Design_
 
 #### GitHub
 
@@ -278,6 +280,12 @@ To streamline the deployment and management of the infrastructure, we used the f
 
 #### Reliability
 
+The SLA for our application ensures that all critical services provided to users are up and running reliably, securely, and of high performance. This SLA ascertains 99.9% uptime for core functionality such as account access, financial transaction processing, and user login authentication. The agreement ensures minimal disruption to the user experience and provides clear guidelines for incident management and resolution when failures occur.
+
+All incidents are logged, analyzed, and escalated to the proper teams for resolution in the event of an SLA breach. Any remediation is done in a way that system performance is restored to SLA-compliant levels as soon as possible. All failures are documented in a very transparent manner and communicated over to stakeholders, complete with detailed timelines and actionable next steps regarding how the issue will be fixed.
+
+This SLA will be enforced by systems that are monitored for this very purpose, using real-time observability tools such as Azure Monitor, Application Insights, and Log Analytics. That provides continuous performance data, identifying and addressing potential issues much earlier.
+
 **SLA**
 
 | ASPECT                          | COMMITMENT                                                 | DETAILS                                                                                                                |
@@ -314,6 +322,34 @@ Diagnostic settings are enabled on all critical resources, including Key Vault, 
 
 Continuous performance reviews, underpinned by the dashboards and alerts, ensure issues that are about to occur are dealt with well in advance of the time when users get affected. Incident response playbooks are triggered during an alert to walk the team through the resolution to restore compliance with the SLAs and SLOs.
 
+##### Incident Response Design
+
+- Account Availability: Alerts are triggered if the success rate of account access requests falls below 95% within a weekly evaluation period. Metrics are derived from Application Insights using custom queries in Azure Log Analytics to evaluate HTTP 200 response rates.
+- Time to Access: Alerts are configured to notify if more than 15% of page access requests exceed the 500ms target within a monthly period. Page load times are monitored in Application Insights, with latency data analyzed through Azure Log Analytics.
+- Transaction Processing Time: Alerts notify when more than 1% of financial transactions exceed a 2-second processing time. These metrics are monitored through Application Insights by tracking API response times for transaction endpoints.
+- Login Success Rate: Alerts are generated if login success rates fall below 99.9% due to system-related issues. Azure Active Directory logs and Application Insights track login success and failure rates, with root causes identified through diagnostics.
+- Fund Transfer Accuracy: Alerts are sent when more than 0.01% of fund transfers fail or encounter discrepancies. Transaction logs and Application Insights validate the transferred amounts and statuses to detect system mismatches.
+
+A Logic App was developed to process alert data and deliver formatted messages to a dedicated Slack channel. This integration provides real-time updates with detailed incident context, including:
+
+- Alert name and severity.
+- The affected SLO, SLI, and specific metric.
+- Timestamp and impacted services or regions.
+
+The Logic App workflow receives alerts from Azure Monitor, extracts relevant information, and formats messages for Slack using webhook integration. Notifications include actionable remediation steps, ensuring prompt collaboration among engineers.
+
+**Error Budget Management**
+
+- Account Availability: The error budget allows up to 5% of account access requests to fail weekly. Azure Monitor metrics dashboards track the consumption of error budgets in real time by analyzing HTTP 200 responses against total access requests.
+- Time to Access: The error budget allows up to 15% of page access requests to exceed the 500ms target monthly. Azure Monitor dashboards aggregate page load time data from Application Insights to monitor error budget consumption.
+- Transaction Processing Time: The error budget permits up to 1% of financial transactions to exceed the 2-second threshold within a month. Azure Monitor and Application Insights visualize API response times for transaction endpoints to ensure adherence to this budget.
+- Login Success Rate: The error budget allows up to 0.1% of login attempts to fail due to system errors monthly. Azure Active Directory logs and Application Insights track login success and failure rates, and Azure dashboards provide a real-time view of error budget usage.
+- Fund Transfer Accuracy: The error budget permits up to 0.01% of transactions to fail due to system-related issues each month. Azure Application Insights and transaction logs are used to verify the transferred amounts and statuses, while Azure Monitor tracks error budget consumption to ensure high accuracy.
+
+![1733693547947](image/index/1733693547947.png)
+
+_Figure 3. Incident Response Design Diagram_
+
 #### Security
 
 Our application was developed following DevSecOps principles, therefore, plenty of security decisions were taken into account when designing Star Bank.
@@ -331,21 +367,12 @@ We enforce branch protection rules to ensure that all changes to the main branch
 
 **CODEOWNERS**
 The CODEOWNERS file is used to define the individuals or teams responsible for specific files or directories within the repository. This ensures that code changes are reviewed by the appropriate experts, enhancing code quality and security.
-https://github.com/Star-Bank-Project/ie-bank-fe-2024/blob/main/.github/CODEOWNERS
-https://github.com/Star-Bank-Project/ie-bank-be-2024/blob/main/.github/CODEOWNERS
-https://github.com/Star-Bank-Project/ie-bank-infra-2024/blob/main/.github/CODEOWNERS
 
 **Dependabot**
 Dependabot is configured to automatically check for updates to our dependencies. It creates pull requests to update dependencies to the latest versions, ensuring that we are protected against known vulnerabilities and benefiting from the latest features and fixes.
-https://github.com/Star-Bank-Project/ie-bank-fe-2024/blob/main/.github/dependabot.yml
-https://github.com/Star-Bank-Project/ie-bank-be-2024/blob/main/.github/dependabot.yml
-https://github.com/Star-Bank-Project/ie-bank-infra-2024/blob/main/.github/dependabot.yml
 
 **OpenSSF Scorecard**
 The OpenSSF Scorecard is used to assess the security posture of our repository. It runs automated checks to evaluate various security best practices and generates a scorecard report. This helps us identify and address potential security issues.
-https://github.com/Star-Bank-Project/ie-bank-fe-2024/blob/main/.github/workflows/scorecard.yml
-https://github.com/Star-Bank-Project/ie-bank-be-2024/blob/main/.github/workflows/scorecard.yml
-https://github.com/Star-Bank-Project/ie-bank-infra-2024/blob/main/.github/workflows/scorecard.yml
 
 **Secret Scanning**
 GitHub Secret Scanning is enabled to automatically detect and prevent the accidental inclusion of sensitive information such as API keys, passwords, and other secrets in the codebase. This helps to prevent unauthorized access and potential security breaches.
@@ -355,7 +382,6 @@ Push Protection is configured to prevent the inclusion of sensitive information 
 
 **Continuous Integration/Continuous Deployment (CI/CD)**
 Our GitHub Actions workflows include steps for linting, building, and deploying the code. This ensures that the code is tested and validated before being deployed to production environments.
-
 
 **Container Registry Credentials Protection**
 
@@ -512,38 +538,52 @@ output systemAssignedIdentityPrincipalId string = appServiceApp.identity.princip
 OpenSSF and SAFECode are security frameworks that ennumerate several concrete best-practices (principles) to ensure the safety of an application. We chose several principles for each framework.
 
 **OpenSSF**
+
 1. Ensure all privileged developers use multi-factor authentication (MFA) tokens. This includes those with commit or accept privileges. MFA hinders attackers from “taking over” these accounts.
 
-7. Monitor known vulnerabilities in your software’s direct & indirect dependencies. (E.g., enable basic scanning via GitHub’s Dependabot)
+![1733692582420](image/index/1733692582420.png)
+
+_Figure 4. 2FA Users List_
+
+2. Monitor known vulnerabilities in your software’s direct & indirect dependencies. (E.g., enable basic scanning via GitHub’s Dependabot)
 
 ![1733689413259](image/index/1733689413259.png)
 
-8. Keep dependencies reasonably up-to-date. Otherwise, it’s hard to update for vulnerabilities.
+_Figure 5. Dependabot Alerts_
 
+8. Keep dependencies reasonably up-to-date. Otherwise, it's hard to update for vulnerabilities.
 9. Do not push secrets to a repository. Use tools to detect pushing secrets to a repository.
 
 ![1733689437913](image/index/1733689437913.png)
+
+_Figure 6. Secret Scanning Alerts_
 
 10. Review before accepting changes. Enforce this, e.g., using GitHub or GitLab protected branches or an equivalent GitHub ruleset.
 
 ![1733689457560](image/index/1733689457560.png)
 
+_Figure 7. Branch Protection Rules List_
+
 **SAFECode**
 
 **Standardize Identity and Access Management:**
 Azure Active Directory (AAD) Authentication:
+
 - The postgre-sql-server.bicep file configures AAD authentication for the PostgreSQL server.
 - The postgreSQLAdministrators resource assigns a service principal as an administrator for the PostgreSQL server.
 
 Role-Based Access Control (RBAC):
+
 - The keyVault.bicep file assigns roles to principals using the Microsoft.Authorization/roleAssignments resource.
 - The roleAssignments parameter in the main.bicep file allows specifying roles for different principals.
 
 Managed Identities:
+
 - The app-service-container.bicep file creates a system-assigned managed identity for the App Service.
 - This managed identity is used to access other Azure resources securely.
 
 Key Vault Integration:
+
 - Secrets such as database credentials and ACR credentials are stored in Azure Key Vault.
 - The acr.bicep file stores ACR admin credentials in Key Vault.
 - The app-service-container.bicep file retrieves secrets from Key Vault for secure configuration.
@@ -555,27 +595,41 @@ Key Vault Integration:
 - Database Credentials: The PostgreSQL server configuration includes an administrator login and password, which are encrypted.
 
 **Use of Safe Functions**
+
 - CodeQL: Runs a set of predefined queries to detect common security issues, including the use of unsafe functions.
 - Dependabot: Checks the dependencies against a vulnerability database (like the GitHub Advisory Database). If a vulnerability is found, Dependabot raises an alert and can automatically create pull requests to update the affected dependencies to a secure version.
 
-
 #### Cost Optimization
 
-- Burstable SKU for PostgreSQL Server: This setting configures the PostgreSQL server with the Standard_B1ms SKU, a burstable VM type (meaning that the server can “burst” to higher levels to support occasional spikes in usage). This setup optimizes costs by allocating resources dynamically.
+We made the following low-level decisions to ensure the least amount of unnecesary costs and optimize resource use. This goes hand-in-hand with performance efficiency.
+
+- Burstable SKU for PostgreSQL Server: This setting configures the PostgreSQL server with the `Standard_B1ms SKU`, a burstable VM type (meaning that the server can "burst" to higher levels to support occasional spikes in usage). This setup optimizes costs by allocating resources dynamically.
 - Basic SKU for Azure Container Registry: The ACR's SKU is set to Basic in the dev and UAT environments, which reduces costs for non-critical workloads while still supporting required container operations.
 - Environment-Specific Parameters: Beneficial because it allows environment specific parameters to ensure that non-production environments use less expensive resources, (ex: flask_debug is set to 0 in non production environments) while still offering flexibility in the prod environment.
 
-#### Operational Excellence
-
-- with full stack dev
-- Collaborate to create Azure Dashboards for SLO compliance tracking and holistic observability.
-
 #### Performance Efficiency
+
+The design decisions for ensuring performance efficiency are present in the infrastructure as well as in the most work-intensive resources.
 
 - Parameterized Deployments with Bicep: Adapts deployments to specific environment needs, without requiring manual changes.
 - Application insights monitoring: Integrated for all environments to monitor application performance metrics and identify bottlenecks, allowing for proactive optimization.
 - Conduct load testing for SLI 2: Page Load Time and SLI 3: Transaction Processing Time.
-- Optimize scalability of infrastructure to handle peak loads while maintaining performance thresholds.
+- Always-on is true for App Service:
+  - Keeps the app pre-warmed
+  - Provisioned load-balancing to be able to distribute resources as it anticipates surge in traffic
+  - Reduces latency for users
+
+#### Operational Excellence
+
+Inherently, our development process ensures operational excellence by following these standards:
+
+- Adopted SCRUM methodology
+- Backlog sharing using Azure DevOps
+- Use of common systems and tools, such as:
+  - Azure Resources
+  - Github Organizations
+  - Slack
+  - Zoom
 
 ---
 
@@ -699,52 +753,50 @@ This approach, combining inner and outer loop strategies, provide an end to end 
 
 ![1733680707322](image/index/1733680707322.png)
 
+_Figure 8. Registration SMD_
+
 #### Login
 
 ![1733680683517](image/index/1733680683517.png)
+
+_Figure 9. Login SMD_
 
 #### Transaction
 
 ![1733680694511](image/index/1733680694511.png)
 
+_Figure 10. Transaction SMD_
+
 ### Entity Relationship Diagram
 
 ![1733599437329](image/index/1733599437329.png)
 
-*Figure #. Entity Relationship Diagram*
+_Figure 11. Entity Relationship Diagram_
 
 ### Data Flow Diagram
 
 ![1733598987314](image/index/1733598987314.png)
 
-*Figure #. Data Flow Diagram*
+_Figure 12. Data Flow Diagram_
 
 ### 12 Factor App Design
 
-1. **Codebase**
-   One codebase tracked in revision control, many deploys
-2. **Dependencies**
-   Explicitly declare and isolate dependencies
-3. **Config**
-   Store config in the environment
-4. **Backing services**
-   Treat backing services as attached resources
-5. **Build, release, run**
-   Strictly separate build and run stages
-6. **Processes**
-   Execute the app as one or more stateless processes
-7. **Port binding**
-   Export services via port binding
-8. **Concurrency**
-   Scale out via the process model
-9. **Disposability**
-   Maximize robustness with fast startup and graceful shutdown
-10. **Dev/prod parity**
-    Keep development, staging, and production as similar as possible
-11. **Logs**
-    Treat logs as event streams
-12. **Admin processes**
-    Run admin/management tasks as one-off processes
+1. **Codebase:** Our GitHub repositories are our only codebase, where we developed and deployed all environments of our application while developing it.
+2. **Dependencies:** All dependencies, including Flask, SQLAlchemy, and third-party libraries, are explicitly declared in `requirements.txt` and managed using virtual environments to isolate them.
+3. **Config:** Application configuration, such as database credentials, API keys, and other environment-specific variables, is stored securely in Azure Key Vault and injected into the app through environment variables.
+4. **Backing services:** Backing services such as PostgreSQL (database), Azure Key Vault (secret storage), and Log Analytics (monitoring) are treated as external, attached resources, ensuring modularity and flexibility.
+5. **Build, release, run:** The build, release, and run stages are clearly separated:
+
+   - **Build stage:** CI/CD pipelines build Docker images.
+   - **Release stage:** Images are tagged and pushed to Azure Container Registry.
+   - **Run stage:** Containers are deployed to App Service for Containers.
+6. **Processes:** The application is executed as stateless processes, with any persistent data stored in PostgreSQL or logged to external backing services like Log Analytics.
+7. **Port binding:** The application exposes its services via port binding in Docker containers, allowing communication with the frontend and other services.
+8. **Concurrency:** The app scales horizontally by adding more container instances in App Service, using Azure's scaling capabilities to handle increased load.
+9. **Disposability:** Processes are designed for fast startup and shutdown, ensuring high availability and robustness during deployments or failures.
+10. **Dev/prod parity:** The development, UAT, and production environments are as similar as possible, with consistent configurations and dependencies to minimize discrepancies.
+11. **Logs:** Logs are treated as event streams and collected by Log Analytics, where they can be monitored and analyzed for performance and error tracking.
+12. **Admin processes:** One-off admin tasks, such as database migrations or account management, can be executed via custom management scripts or direct API calls.
 
 ### Infrastructure Release Strategy
 

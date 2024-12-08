@@ -330,6 +330,13 @@ The tests were run on pytest and a comprehensive test coverage report was produc
 
 This connects with user stories for instance "As a user, I want to create an account so that I can use the banking services" and "As a user, I want to view my account details to track my finances." As a result of following these stories when designing and running the tests, the members of the development team managed to satisfy user needs and at the same time ensure quality of the functionalities implemented.
 
+#### Inner Loop and Outer Loop Definition 
+- Inner Loop: Focuses on the local development cycle, when developers are concerned with building, testing and debugging their code in their environment. You can consider writing and passing unit tests via Pytest for the backend and unit linting or static analysis tools to maintain code quality. The objective of the inner loop is to allow the developers to catch the issues at hand early enough before they make a submission to the shared repository. 
+
+- Outer Loop: The focus shifts to the integration and deployment of the processes at the team level. It all starts when a developer commits changes to a feature branch in GitHub. Automated Continuous Integration (CI) pipelines get triggered which execute the tests, static analysis and building processes on several environments. Once the changes are merged into the main branch, upon passing CI, it initiates the Continuous Deployment (CD). This ensures that all the changes are first validated either in staging or in UAT environments before pushing to production. 
+
+This approach, combining inner and outer loop strategies, provide an end to end pipeline from development to deployment while minimizing risks and instabilities of the application at all stages.
+
 ### Use Cases and Sequential Model Design
 
 Must include for each use case

@@ -5,7 +5,7 @@ param location string
 param sourceId string
 
 @description('The display name for the workbook.')
-param displayName string = 'Star Bank Workbook'
+param displayName string = 'StarBankWorkbook'
 
 resource workbook 'Microsoft.Insights/workbooks@2022-04-01' = {
   name: guid(displayName, resourceGroup().id)

@@ -80,4 +80,4 @@ resource secretAdminUserPassword1 'Microsoft.KeyVault/vaults/secrets@2023-02-01'
 
 // Output the ACR name
 output containerRegistryName string = containerRegistry.name
-
+ 

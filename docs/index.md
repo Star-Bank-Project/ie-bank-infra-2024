@@ -242,21 +242,34 @@ Development branch triggers deployment to the DEV environment.
 Pull requests to the main branch deploy to UAT.
 Successful merges into the main branch trigger production deployments.
 The strategy also incorporates Test-Driven Development (TDD) principles to validate functionality before integration, ensuring quality and robustness at every stage.
+
 ### CI/CD Pipeline and Release Strategy
 
-https://learn.microsoft.com/en-us/devops/devsecops/enable-devsecops-azure-github#secure-your-code-with-github
+#### Git feature branch strategy
+- The startegy adopted for both Backend and Frontend focused on the implementation of short-lived feauture branches derived from the main branch. This helped managing updates to the code and better understanding and debugging of code due to its modular nature, as each feature, user story or task was done on seperate branches. After checking that the workflow actions fully deploy and work, a pull request is made, where two reviewers are called to give their approval for the merging to the main branch.
+- Examples:
+      - backend had branches called containerization, one called backendci (here the implementation of backed CI/CD was implemented), ayacibe (where another approach to CI/CD was implemnted) and prodcicd (where the variables and parameters to integrate and deploy the backend in the Production resource group)
+      - frontend had two branches for the CI/CD with two different approaches (ayacife and ciayafe), and three branches where errors were fixed called ayanew, fixingfe and null-cookie-fix. And one last one called prod where the yml file was changed to integrate and deploy in the production environment.
 
 #### Frontend
 
 **CI Description**
-The CI pipeline automates testing and building Vue.js-based frontend applications.
-Steps:
 
-Dependency Installation: Ensures all project dependencies are resolved via npm install.
-Build Verification: Builds the frontend using the build:dev or build:uat script depending on the branch/environment.
-Linting/Static Analysis: Ensures the code adheres to style guidelines to avoid syntax and logic errors.
-Artifact Upload: Prepared builds are uploaded for deployment.
-- Errors addressed:
+The CI pipeline for the Vue.js-based frontend application automates the following steps, as defined in the ie-bank-frontend.yml workflow:
+
+1. Dependency Installation:
+the jobs start with installing all required dependencies in a clean, consistent environment using npm ci. Then it ensure that all packages and dependicies are conssitent with what was outlined in the package-lock.json where version of the dependencies were defined. 
+
+2. Build Verification:
+This job is split into three parts for the three environments (DEV, UAT, PROD) and ensures that it compiles correctly
+
+3. Linting:
+Executes npm run lint to perform static code analysis and enforce coding standards, reducing errors and maintaining code consistency.
+
+4. Artifact Upload:
+This part Uploads the compiled build artifacts (e.g., dist-dev or dist-uat) as deployable outputs for the CD pipeline.
+
+Fixed Issues:
 
   - Missing dependencies (e.g., axios, vue-router) were resolved by updating package.json.
   - Adjusted vue.config.js for compatibility with development and UAT builds
@@ -274,15 +287,24 @@ Proper artifact paths (dist-dev or dist-uat) ensured successful deployments with
 #### Backend
 
 **CI Description**
-The CI pipeline validates the Flask backend API:
+The backend CI pipeline validates the Flask-based API, as defined in ie-bank-backend.yml. Key steps include:
 
-Environment Setup: Python dependencies are installed, including test libraries.
-Linting: Static analysis using tools like Flake8.
-Unit Testing: Pytest is used for unit tests with PostgreSQL configuration through GitHub secrets.
-Coverage Reports: Generates code coverage reports for validation.
-Fixed Issues:
+1. Environment Setup:
+Using pip install all python dependencies which are defined in the requirements.txt are to be installed. then the 3 environemnt and their appropriate variables (BACKEND_WEBAPP, DOCKER_REGISTRY_SERVER_URL, IMAGE_NAME, KEY_VAULT_NAME) are defined for all environemnts. 
 
-Addressed missing SQLALCHEMY_DATABASE_URI environment variables by properly setting secrets in workflows.
+2. Static Analysis:
+flake8 is implemnetd to enforce Python coding standards and catching potential bugs or syntax issues early.
+
+3. Unit Testing:
+  - Unit and Functional Testing: Executes pytest for unit and functional tests to validate core API functionality, using a PostgreSQL test database defined in the workflow.
+
+Coverage Reports:
+
+after testing the coverage reports are then geneated and uploaded using pytest-cov, ensuring all critical code paths are tested.
+
+- Fixed Issues:
+  
+  - Enhanced test reliability by mocking dependencies and isolating tests.
 
 **CD Description**
 The CD pipeline builds and deploys the Flask backend as a Docker container:

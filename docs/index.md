@@ -154,9 +154,9 @@ To provide users with an innovative, reliable, and secure banking platform, comb
 #### DevOps Collaboration
 
 - **GitHub and Azure DevOps Boards:** Track issues, automate builds, and manage deployments.
-- **Slack and Azure DevOps: Receive updates on task progress and deployments.
-- **Slack and GitHub: Notify teams about pull requests and changes in code.
-- **Slack and Zoom: Facilitate virtual meetings for distributed teams.
+- **Slack and Azure DevOps:** Receive updates on task progress and deployments.
+- **Slack and GitHub:** Notify teams about pull requests and changes in code.
+- **Slack and Zoom:** Facilitate virtual meetings for distributed teams.
 
 ---
 
@@ -564,7 +564,7 @@ _Figure 6. Secret Scanning Alerts_
 
 _Figure 7. Branch Protection Rules List_
 
-**SAFECode**
+**SAFECode Framework**
 
 **Standardize Identity and Access Management:**
 Azure Active Directory (AAD) Authentication:
@@ -598,6 +598,59 @@ Key Vault Integration:
 
 - CodeQL: Runs a set of predefined queries to detect common security issues, including the use of unsafe functions.
 - Dependabot: Checks the dependencies against a vulnerability database (like the GitHub Advisory Database). If a vulnerability is found, Dependabot raises an alert and can automatically create pull requests to update the affected dependencies to a secure version.
+
+**Establish Coding Standards and Conventions**
+Coding standards and conventions ensure code quality, readability, and consistency across the IE Bank Backend project.
+
+Coding Standards
+1. Language and Frameworks:
+- Python: Flask, PEP 8 style guide.
+- JavaScript: Airbnb JavaScript Style Guide, ESLint.
+- Naming Conventions:
+2. Variables/Functions: snake_case (Python), camelCase (JavaScript).
+- Classes: PascalCase.
+- Constants: UPPER_SNAKE_CASE.
+4. File Structure:
+- Organized code into logical modules (e.g., models, controllers).
+
+Conventions
+1. Version Control:
+- Use Git with GitFlow branching model.
+- Follow Conventional Commits for commit messages.
+2. Dependency Management:
+- Use requirements.txt (Python) and package.json (JavaScript).
+- Regular updates with Dependabot.
+3. Code Reviews:
+- Use GitHub Pull Requests for peer reviews.
+4. Security:
+- Follow secure coding practices.
+- Use CodeQL and Dependabot for security checks.
+
+Tools and Integrations
+1. Linters and Formatters:
+- flake8, black (Python).
+- ESLint, Prettier (JavaScript).
+2. CI/CD:
+- Use GitHub Actions for automated testing and deployment.
+
+**Use Code Analysis Tools**
+To ensure early detection of vulnerabilities and maintain a high standard of code security, our project employs a combination of advanced code analysis tools. These tools enhance the security of the codebase by identifying potential issues, enforcing best practices, and mitigating risks at various levels:
+
+1. CodeQL
+- Static Analysis: CodeQL scans the codebase to identify security vulnerabilities and unsafe code patterns using a library of predefined queries.
+- Customization: Developers can create custom queries tailored to the project’s specific needs, enabling targeted analysis of potential security risks.
+- Integration: Automated scans are performed during the CI/CD pipeline, providing immediate feedback on newly introduced code and preventing vulnerabilities from entering the main branch.
+
+2. OSSF Scorecard
+- Repository Security Assessment: The OSSF Scorecard evaluates the security posture of the repository, focusing on practices such as branch protection rules, code review enforcement, and dependency updates.
+- Automated Scoring: It generates a comprehensive scorecard report, highlighting areas of improvement and ensuring adherence to secure software development practices.
+- Holistic View: By analyzing the security hygiene of the repository environment, OSSF Scorecard complements code-level analysis tools.
+
+3. Dependabot
+- Dependency Vulnerability Scanning: Dependabot identifies vulnerabilities in both direct and indirect dependencies by cross-referencing the GitHub Advisory Database.
+- Automated Fixes: It generates pull requests to update dependencies to secure versions, minimizing the risk of exploitation from third-party libraries.
+- Continuous Monitoring: Dependabot runs on a scheduled basis, ensuring that the project remains up-to-date with the latest security patches.
+
 
 #### Cost Optimization
 

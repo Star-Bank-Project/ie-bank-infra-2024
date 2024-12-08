@@ -255,7 +255,7 @@ The strategy also incorporates Test-Driven Development (TDD) principles to valid
 
 **CI Description**
 
-The CI pipeline for the Vue.js-based frontend application automates the following steps, as defined in the ie-bank-frontend.yml workflow:
+The CI pipeline is in charge of development and integration as well as verification of the rest API implementation for the respective Vue.js based frontend applications.
 
 1. Dependency Installation:
 the jobs start with installing all required dependencies in a clean, consistent environment using npm ci. Then it ensure that all packages and dependicies are conssitent with what was outlined in the package-lock.json where version of the dependencies were defined. 
@@ -287,7 +287,7 @@ Proper artifact paths (dist-dev or dist-uat) ensured successful deployments with
 #### Backend
 
 **CI Description**
-The backend CI pipeline validates the Flask-based API, as defined in ie-bank-backend.yml. Key steps include:
+As specified in ie-bank-backend.yml, the Flask based API is automated tested at this point. The key steps include:
 
 1. Environment Setup:
 Using pip install all python dependencies which are defined in the requirements.txt are to be installed. then the 3 environemnt and their appropriate variables (BACKEND_WEBAPP, DOCKER_REGISTRY_SERVER_URL, IMAGE_NAME, KEY_VAULT_NAME) are defined for all environemnts. 
@@ -318,15 +318,17 @@ Fixed missing Dockerfiles and resolved registry authentication failures by retri
 
 #### Test/behavior driven development strategy
 
-The Test/Behavior Driven Development (TDD) strategy implemented emphasizes building robust and reliable software by designing tests derived directly from user stories and acceptance criteria. The strategy, as documented in the Design Document, focuses on creating automated unit and functional tests that validate core backend functionalities, ensuring alignment with defined business logic.
+The implemented Test/Behavior Driven Development (TDD) strategy helps to address the challenge of creating dependable software by starting from the ending-user by identifying user stories and acceptance criteria to inform creation of the tests. The strategy, as documented in the design document, seeks to develop automated unit and functional tests which check the critical functionalities of the backend, to ensure the implementation of relevant business logic.
 
-The designed tests cover key aspects of the backend API:
+The designed tests cover relevant areas of the backend which include:
 
-Functional Tests: Verify critical user-facing functionalities, such as fetching account details (test_get_accounts) and creating new accounts (test_create_account). Additionally, edge cases like invalid routes are tested using cases like test_dummy_wrong_path to ensure the API gracefully handles errors.
-Unit Tests: Test core backend logic, such as database model operations, exemplified by test_create_account in the test_model.py file, ensuring backend stability at the data layer.
-The tests were executed using Pytest, generating a detailed test coverage report. The coverage breakdown reveals the focus on functional robustness and highlights areas for potential improvement, such as the routes.py file, which currently has partial test coverage. This aligns with the iterative nature of TDD, prioritizing test implementation for high-impact code paths first.
+1. Functional Tests: Validate essential features which the end user uses, like account balance operations (test_get_accounts) and new account registration (test_create_account). Also, non working links are tested, for example, test_dummy_wrong_path, to check how the API responds when it is fed text other than what it was intended for.
+   
+2. Unit Tests: Evaluate key parts of the backend, such as basic operations of the database model through the test_create_account test_case located in the test_model.py file to assist in future changes in the backend in respect to data.
+   
+The tests were run on pytest and a comprehensive test coverage report was produced. From the segregation of codes, it is observed that the quality of the functionality has been stressed while certain parts like the routes.py file can be improved because at the moment it has been only partially tested. This conforms to the iterative nature of TDD where tests are written first for the most critical code paths. 
 
-This approach is directly tied to user stories such as "As a user, I want to create an account so that I can use the banking services" and "As a user, I want to view my account details to track my finances." By designing and executing tests based on these stories, the development team ensured that the implemented functionalities met user requirements while maintaining a high standard of quality.
+This connects with user stories for instance "As a user, I want to create an account so that I can use the banking services" and "As a user, I want to view my account details to track my finances." As a result of following these stories when designing and running the tests, the members of the development team managed to satisfy user needs and at the same time ensure quality of the functionalities implemented.
 
 ### Use Cases and Sequential Model Design
 

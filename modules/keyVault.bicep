@@ -3,6 +3,7 @@ param location string
 param roleAssignments array = []
 param secrets array = []
 param enableVaultForDeployment bool = false 
+param logAnalyticsWorkspaceId string
 
 var builtInRoleNames = {
   'Key Vault Secrets User': subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6')
@@ -46,4 +47,17 @@ resource keyVaultSecrets 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = [for s
   }
 }]
 
+resource keyVaultDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'keyVaultDiagnostics'
+  scope: keyVault
+  properties: {
+    logs: [
+      { category: 'AuditEvent', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
+    ]
+    metrics: [
+      { category: 'AllMetrics', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
+    ]
+    workspaceId: logAnalyticsWorkspaceId
+  }
+}
 

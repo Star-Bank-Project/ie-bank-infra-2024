@@ -1,6 +1,8 @@
 @description('The name of the Azure Container Registry')
 param name string
 
+param logAnalyticsWorkspaceId string
+
 @description('The location of the Azure Container Registry')
 param location string = resourceGroup().location
 
@@ -25,6 +27,22 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' =
   dependsOn: [
     adminCredentialsKeyVault
   ]
+}
+
+// 
+resource acrDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'acrDiagnostics'
+  scope: containerRegistry 
+  properties: {
+    logs: [
+      { category: 'ContainerRegistryRepositoryEvents', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
+      { category: 'ContainerRegistryLoginEvents', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
+    ]
+    metrics: [
+      { category: 'AllMetrics', enabled: true, retentionPolicy: { enabled: false, days: 0 } }
+    ]
+    workspaceId: logAnalyticsWorkspaceId
+  }
 }
 
 // Define the Key Vault as a direct resource
